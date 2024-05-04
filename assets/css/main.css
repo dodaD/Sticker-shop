@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  width: 80%;
+  background-color: #f0f0f0;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  height: fit-content;
+
+  .product-wrapper:first-child {
+    margin-left: 0;
+  }
+}
