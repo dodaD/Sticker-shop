@@ -1,40 +1,34 @@
 <template>
-  <div class="product-wrapper">
+  <div class="product-profile-wrapper">
     <img v-if="img" :src="img" />
-    <img v-if="img" src="/assets/img/kidd.png" />
 
     <div class="descpription-wrapper">
-      <div class="price-wrapper">
-        <span class="title"> {{ title }} </span>
-        <span class="price"> {{ price }} </span>
-      </div>
-      <button class="add-to-cart">Add to cart</button>
+      <span class="title"> {{ title }} </span>
+      <span class="price"> {{ price }} </span>
+      <button class="add-to-cart-button"> Add to Cart </button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-defineProps<{
-  img?: string
-  title: string
-  price: string // WARNING:  This should be a number
-}>()
+<script setup>
+const props = defineProps({
+  title: String,
+  price: String,
+  img: String
+})
+
 </script>
 
 <style>
-.product-wrapper {
+.product-profile-wrapper {
   width: 25%;
   margin-left: 10px;
   display: flex;
+  flex-direction: column;
 }
 
 .descpription-wrapper {
   display: flex;
-}
-
-.price-wrapper {
-  display: flex;
-  flex-direction: column;
 }
 
 .title {
@@ -45,8 +39,17 @@ defineProps<{
   font-size: 16px;
 }
 
-.add-to-cart {
+.add-to-cart-button {
   height: 100%;
+  max-height: 30px;
+  margin: auto 10px;
+}
+
+img {
+  height: auto;
+  max-width: 100%;
+  max-height: 400px;
+  padding: 10px;
 }
 </style>
 
