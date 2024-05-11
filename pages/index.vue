@@ -1,26 +1,21 @@
 <template>
-  <div class="wrapper">
-    <div class="navigation">
-    </div>
-
-    <div class="banner-image">
-      <div class="box-inside-banner">
-        Some text
+  <div class="container text-center">
+    <div class="row">
+      <div class="col">
+        Column
       </div>
-    </div>
-
-    <div class="assortiment-wrapper">
-      <div class="category print"> </div>
-      <div class="category stickers">
-        <Stickers>
-        </Stickers>
-
+      <div class="col">
+        Column
+      </div>
+      <div class="col">
+        Column
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+
 </script>
 
 

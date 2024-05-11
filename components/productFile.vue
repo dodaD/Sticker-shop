@@ -21,8 +21,6 @@ const props = defineProps({
 
 <style>
 .product-profile-wrapper {
-  width: 25%;
-  margin-left: 10px;
   display: flex;
   flex-direction: column;
 }

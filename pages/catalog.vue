@@ -3,20 +3,32 @@
     <span class="page-title"> STICKERS </span>
   </div>
 
-  <div class="menu-wrapper">
-    <div class="filter-wrapper"> </div>
+  <div class="menu-wrapper container-xxl">
+    <div class="filter-wrapper overflow-hidden col-3">
+      Filters
+    </div>
 
-    <div class="products-wrapper">
-      <productFile title="Product 1" price=0.15 :img=imgUrl />
-      <productFile title="Product 2" price=0.15 :img=imgUrl />
-      <productFile title="Product 3" price=0.15 :img=imgUrl />
-      <productFile title="Product 4" price=0.15 :img=imgUrl />
+    <div class="products-wrapper row col-9">
+      <productFile class="col-4" title="Product 1" price=0.15 :img=imgUrl />
+      <productFile class="col-4" title="Product 2" price=0.15 :img=imgUrl />
+      <productFile class="col-4" title="Product 3" price=0.15 :img=imgUrl />
+      <productFile class="col-4" title="Product 4" price=0.15 :img=imgUrl />
     </div>
   </div>
 </template>
 
 <script setup>
 import imgUrl from '@/assets/img/kidd.png';
+
+useHead({
+  title: 'My App',
+  link: [{
+    rel: 'stylesheet',
+    href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    crossorigin: 'anonymous',
+    integrity: 'sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH'
+  }]
+})
 </script>
 
 <style>
@@ -37,19 +49,15 @@ import imgUrl from '@/assets/img/kidd.png';
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .filter-wrapper {
-  width: 20%;
   height: 100px;
 }
 
 .products-wrapper {
-  width: 90%;
   background-color: #f0f0f0;
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   height: fit-content;
 
