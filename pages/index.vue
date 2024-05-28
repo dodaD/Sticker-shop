@@ -5,10 +5,16 @@
     <div class="menu-wrapper container-xxl row gx-0">
       <div class="filter-wrapper overflow-hidden gy-3 col-2">
         <span class="underline-for-sections"> Filters </span>
+        <button @click="sort('sticker')">Show only stickers</button>
+        <button @click="sort('large')">Show only large</button>
+        <button @click="sort('frog')">Show only frog items</button>
+        <button @click="filteredProducts = store.response.products">
+          Reset filters
+        </button>
       </div>
 
       <div class="products-wrapper row gx-2 col-9">
-        <div v-for="product in response.products" class="col-4">
+        <div v-for="product in filteredProducts" class="col-4">
           <productFile
             :title="product.title"
             :price="product.price"
@@ -25,7 +31,13 @@ import { useProductsStore } from "@/stores/products";
 import productFile from "@/components/productFile.vue";
 
 const store = useProductsStore();
-let response = store.response;
+const filteredProducts = ref(store.response.products);
+
+function sort(sortBy) {
+  filteredProducts.value = store.response.products.filter((product) => {
+    return product.type.includes(sortBy);
+  });
+}
 
 useHead({
   title: "My App",
@@ -63,8 +75,8 @@ useHead({
 }
 
 .filter-wrapper {
-  height: 100px;
   display: flex;
+  flex-direction: column;
 }
 
 .underline-for-sections {
