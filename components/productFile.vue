@@ -1,12 +1,8 @@
 <template>
   <div class="product-profile-wrapper">
     <img v-if="img" :src="img" />
-
-    <div class="descpription-wrapper">
-      <span class="title"> {{ title }} </span>
-      <span class="price"> {{ price }} </span>
-      <button class="add-to-cart-button"> Add to Cart </button>
-    </div>
+    <span class="title"> {{ title }} </span>
+    <span class="price"> {{ price }} </span>
   </div>
 </template>
 
@@ -14,19 +10,25 @@
 const props = defineProps({
   title: String,
   price: String,
-  img: String
-})
-
+  img: String,
+});
 </script>
 
 <style>
 .product-profile-wrapper {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
 }
 
-.descpription-wrapper {
-  display: flex;
+.product-profile-wrapper:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 100%;
+  /* TODO: make width of width of ing, without compressing it*/
 }
 
 .title {
@@ -45,9 +47,8 @@ const props = defineProps({
 
 img {
   height: auto;
+  width: contain;
   max-width: 100%;
   max-height: 400px;
-  padding: 10px;
 }
 </style>
-
