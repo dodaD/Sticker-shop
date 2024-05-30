@@ -13,7 +13,7 @@ export const useProductsStore = defineStore("products", () => {
       },
       {
         id: 2,
-        title: "sticker,flower",
+        title: "sticker flower",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
         price: "1.00",

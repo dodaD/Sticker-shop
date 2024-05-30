@@ -5,16 +5,21 @@
     <div class="menu-wrapper container-xxl row gx-0">
       <div class="filter-wrapper overflow-hidden gy-3 col-2">
         <span class="underline-for-sections"> Filters </span>
-        <button @click="sort('sticker')">Show only stickers</button>
-        <button @click="sort('large')">Show only large</button>
-        <button @click="sort('frog')">Show only frog items</button>
-        <button @click="filteredProducts = store.response.products">
-          Reset filters
-        </button>
+
+        <input
+          v-for="filter in getAllFilters()"
+          type="checkbox"
+          :value="filter"
+          v-model="appliedFilters"
+          :id="filter"
+        />
+        <label v-for="filter in getAllFilters()" :for="filter"
+          >Show only {{ filter }}
+        </label>
       </div>
 
       <div class="products-wrapper row gx-2 col-9">
-        <div v-for="product in filteredProducts" class="col-4">
+        <div v-for="product in filtredProducts" class="col-4">
           <productFile
             :title="product.title"
             :price="product.price"
@@ -27,16 +32,39 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useProductsStore } from "@/stores/products";
 import productFile from "@/components/productFile.vue";
 
 const store = useProductsStore();
-const filteredProducts = ref(store.response.products);
+const appliedFilters = ref([]);
 
-function sort(sortBy) {
-  filteredProducts.value = store.response.products.filter((product) => {
-    return product.type.includes(sortBy);
+const filtredProducts = computed(() => {
+  if (appliedFilters.value.length === 0) {
+    return store.response.products;
+  }
+
+  let allFitredProducts = [];
+
+  for (let filter of appliedFilters.value) {
+    const allItemsWithThisFilter = store.response.products.filter((product) => {
+      return product.type.includes(filter);
+    });
+    allFitredProducts = [...allFitredProducts, ...allItemsWithThisFilter];
+  }
+  return allFitredProducts;
+});
+
+function getAllFilters() {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    const typesInProduct = product.type.split(",");
+    for (let type of typesInProduct) {
+      uniqueTypes.add(type);
+    }
   });
+  return Array.from(uniqueTypes);
 }
 
 useHead({
