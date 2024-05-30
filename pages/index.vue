@@ -6,7 +6,30 @@
       <div class="filter-wrapper overflow-hidden gy-3 col-2">
         <span class="underline-for-sections"> Filters </span>
 
-        <div class="checkbox-wrapper" v-for="filter in getAllFilters()">
+        <div>Type</div>
+        <div class="checkbox-wrapper" v-for="filter in getAllFilters('type')">
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+          />
+          <label>Show only {{ filter }} </label>
+        </div>
+
+        <div>Size</div>
+        <div class="checkbox-wrapper" v-for="filter in getAllFilters('size')">
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+          />
+          <label>Show only {{ filter }} </label>
+        </div>
+
+        <div>Theme</div>
+        <div class="checkbox-wrapper" v-for="filter in getAllFilters('theme')">
           <input
             type="checkbox"
             :value="filter"
@@ -58,14 +81,11 @@ const filtredProducts = computed(() => {
   return allFitredProducts;
 });
 
-function getAllFilters() {
+function getAllFilters(filter) {
   let uniqueTypes = new Set();
 
   store.response.products.forEach((product) => {
-    const typesInProduct = product.type.split(",");
-    for (let type of typesInProduct) {
-      uniqueTypes.add(type);
-    }
+    uniqueTypes.add(product[filter]);
   });
   return Array.from(uniqueTypes);
 }
