@@ -6,16 +6,15 @@
       <div class="filter-wrapper overflow-hidden gy-3 col-2">
         <span class="underline-for-sections"> Filters </span>
 
-        <input
-          v-for="filter in getAllFilters()"
-          type="checkbox"
-          :value="filter"
-          v-model="appliedFilters"
-          :id="filter"
-        />
-        <label v-for="filter in getAllFilters()" :for="filter"
-          >Show only {{ filter }}
-        </label>
+        <div class="checkbox-wrapper" v-for="filter in getAllFilters()">
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+          />
+          <label>Show only {{ filter }} </label>
+        </div>
       </div>
 
       <div class="products-wrapper row gx-2 col-9">
@@ -44,13 +43,17 @@ const filtredProducts = computed(() => {
     return store.response.products;
   }
 
-  let allFitredProducts = [];
+  let allFitredProducts = new Set();
 
   for (let filter of appliedFilters.value) {
-    const allItemsWithThisFilter = store.response.products.filter((product) => {
-      return product.type.includes(filter);
-    });
-    allFitredProducts = [...allFitredProducts, ...allItemsWithThisFilter];
+    const allProductsWithThisFilter = store.response.products.filter(
+      (product) => {
+        return product.type.includes(filter);
+      },
+    );
+    for (let product of allProductsWithThisFilter) {
+      allFitredProducts.add(product);
+    }
   }
   return allFitredProducts;
 });
