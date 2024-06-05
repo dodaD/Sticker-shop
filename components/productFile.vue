@@ -1,8 +1,8 @@
 <template>
-  <div class="product-profile-wrapper">
-    <img v-if="img" :src="img" />
-    <span class="title"> {{ title }} </span>
-    <span class="price"> {{ price }} </span>
+  <div class="flex flex-col hover:bg-stone-200/65 hover:rounded-md w-fit">
+    <img v-if="img" :src="img" class="w-fit mx-auto" />
+    <span class="mx-auto"> {{ title }} </span>
+    <span class="mx-auto mb-2"> {{ price }} </span>
   </div>
 </template>
 

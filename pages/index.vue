@@ -1,53 +1,51 @@
 <template>
-  <div class="wrapper">
-    <span class="page-title"> STICKERS </span>
+  <span class=""> STICKERS </span>
 
-    <div class="menu-wrapper container-xxl row gx-0">
-      <div class="filter-wrapper overflow-hidden gy-3 col-2">
-        <span class="underline-for-sections"> Filters </span>
+  <div class="flex w-fit mx-auto xl:w-10/12 md:w-11/12">
+    <div class="basis-1/4">
+      <span class=""> Filters </span>
 
-        <div class="underline-for-sections">Type</div>
-        <div class="checkbox-wrapper" v-for="filter in getAllFilters('type')">
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-          />
-          <label>Show only {{ filter }} </label>
-        </div>
-
-        <div class="underline-for-sections">Size</div>
-        <div class="checkbox-wrapper" v-for="filter in getAllFilters('size')">
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-          />
-          <label>Show only {{ filter }} </label>
-        </div>
-
-        <div class="underline-for-sections">Theme</div>
-        <div class="checkbox-wrapper" v-for="filter in getAllFilters('theme')">
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-          />
-          <label>Show only {{ filter }} </label>
-        </div>
+      <div class="mx-auto">Type</div>
+      <div class="" v-for="filter in getAllFilters('type')">
+        <input
+          type="checkbox"
+          :value="filter"
+          v-model="appliedFilters"
+          :id="filter"
+        />
+        <label>Show only {{ filter }} </label>
       </div>
 
-      <div class="products-wrapper row gx-2 col-9">
-        <div v-for="product in filtredProducts" class="col-4">
-          <productFile
-            :title="product.title"
-            :price="product.price"
-            :img="product.imgURL"
-          />
-        </div>
+      <div class="">Size</div>
+      <div class="" v-for="filter in getAllFilters('size')">
+        <input
+          type="checkbox"
+          :value="filter"
+          v-model="appliedFilters"
+          :id="filter"
+        />
+        <label>Show only {{ filter }} </label>
+      </div>
+
+      <div class="">Theme</div>
+      <div class="" v-for="filter in getAllFilters('theme')">
+        <input
+          type="checkbox"
+          :value="filter"
+          v-model="appliedFilters"
+          :id="filter"
+        />
+        <label>Show only {{ filter }} </label>
+      </div>
+    </div>
+
+    <div class="grid xl:grid-cols-3 md:grid-cols-2 gap-4 basis-2/3">
+      <div v-for="product in filtredProducts" class="">
+        <productFile
+          :title="product.title"
+          :price="product.price"
+          :img="product.imgURL"
+        />
       </div>
     </div>
   </div>
@@ -93,19 +91,6 @@ function getAllFilters(filter) {
   });
   return Array.from(uniqueTypes);
 }
-
-useHead({
-  title: "My App",
-  link: [
-    {
-      rel: "stylesheet",
-      href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
-      crossorigin: "anonymous",
-      integrity:
-        "sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH",
-    },
-  ],
-});
 </script>
 
 <style>

@@ -4,4 +4,10 @@ export default defineNuxtConfig({
     // ...
     "@pinia/nuxt",
   ],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
 });
