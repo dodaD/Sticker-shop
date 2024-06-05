@@ -6,7 +6,7 @@
       <div class="filter-wrapper overflow-hidden gy-3 col-2">
         <span class="underline-for-sections"> Filters </span>
 
-        <div>Type</div>
+        <div class="underline-for-sections">Type</div>
         <div class="checkbox-wrapper" v-for="filter in getAllFilters('type')">
           <input
             type="checkbox"
@@ -17,7 +17,7 @@
           <label>Show only {{ filter }} </label>
         </div>
 
-        <div>Size</div>
+        <div class="underline-for-sections">Size</div>
         <div class="checkbox-wrapper" v-for="filter in getAllFilters('size')">
           <input
             type="checkbox"
@@ -28,7 +28,7 @@
           <label>Show only {{ filter }} </label>
         </div>
 
-        <div>Theme</div>
+        <div class="underline-for-sections">Theme</div>
         <div class="checkbox-wrapper" v-for="filter in getAllFilters('theme')">
           <input
             type="checkbox"
@@ -71,7 +71,11 @@ const filtredProducts = computed(() => {
   for (let filter of appliedFilters.value) {
     const allProductsWithThisFilter = store.response.products.filter(
       (product) => {
-        return product.type.includes(filter);
+        return (
+          product.type.includes(filter) ||
+          product.size.includes(filter) ||
+          product.theme.includes(filter)
+        );
       },
     );
     for (let product of allProductsWithThisFilter) {
