@@ -6,61 +6,91 @@
       <div class="border-solid border-b pb-4 border-indigo-500">Filters</div>
 
       <div class="py-2">
-        Type
-        <div
-          class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('type')"
-        >
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-            class="hover:cursor-pointer"
+        <div class="flex items-center justify-between">
+          Type
+          <button
+            class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
+            @click="showTypes = !showTypes"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
         </div>
+
+        <TransitionGroup name="type">
+          <div
+            class="py-[2px] flex items-center"
+            v-for="filter in getAllFilters('type')"
+            v-if="showTypes"
+          >
+            <input
+              type="checkbox"
+              :value="filter"
+              v-model="appliedFilters"
+              :id="filter"
+              class="hover:cursor-pointer"
+            />
+            <label class="pl-[5px]">Show only {{ filter }} </label>
+          </div>
+        </TransitionGroup>
       </div>
 
-      <div class="py-2 border-solid border-t pb-4 border-indigo-500">
-        Size
-        <div
-          class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('size')"
-        >
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-            class="hover:cursor-pointer"
+      <div class="py-2 border-solid border-t border-indigo-500">
+        <div class="flex items-center justify-between">
+          Size
+          <button
+            class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
+            @click="showSizes = !showSizes"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
         </div>
+
+        <TransitionGroup name="size">
+          <div
+            class="py-[2px] flex items-center"
+            v-for="filter in getAllFilters('size')"
+            v-if="showSizes"
+          >
+            <input
+              type="checkbox"
+              :value="filter"
+              v-model="appliedFilters"
+              :id="filter"
+              class="hover:cursor-pointer"
+            />
+            <label class="pl-[5px]">Show only {{ filter }} </label>
+          </div>
+        </TransitionGroup>
       </div>
 
-      <div class="py-2 border-solid border-t pb-4 border-indigo-500">
-        Theme
-        <div
-          class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('theme')"
-        >
-          <input
-            type="checkbox"
-            :value="filter"
-            v-model="appliedFilters"
-            :id="filter"
-            class="hover:cursor-pointer"
+      <div class="py-2 border-solid border-t border-indigo-500">
+        <div class="flex items-center justify-between">
+          Theme
+          <button
+            class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
+            @click="showThemes = !showThemes"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
         </div>
+
+        <TransitionGroup name="theme">
+          <div
+            class="py-[2px] flex items-center"
+            v-for="filter in getAllFilters('theme')"
+            v-if="showThemes"
+          >
+            <input
+              type="checkbox"
+              :value="filter"
+              v-model="appliedFilters"
+              :id="filter"
+              class="hover:cursor-pointer"
+            />
+            <label class="pl-[5px]">Show only {{ filter }} </label>
+          </div>
+        </TransitionGroup>
       </div>
     </div>
 
     <div
       class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-2/3"
     >
-      <TransitionGroup name="list">
+      <TransitionGroup name="products">
         <div v-for="product in filtredProducts" class="">
           <productFile
             :title="product.title"
@@ -80,6 +110,9 @@ import productFile from "@/components/productFile.vue";
 
 const store = useProductsStore();
 const appliedFilters = ref([]);
+const showTypes = ref(true);
+const showSizes = ref(true);
+const showThemes = ref(true);
 
 const filtredProducts = computed(() => {
   if (appliedFilters.value.length === 0) {
@@ -116,12 +149,36 @@ function getAllFilters(filter) {
 </script>
 
 <style>
-.list-enter-active,
-.list-leave-active {
+.products-enter-active,
+.products-leave-active {
   transition: all 0.3s ease-in-out;
 }
-.list-enter-from,
-.list-leave-to {
+.products-enter-from,
+.products-leave-to {
+  opacity: 0;
+}
+
+.theme-enter-active,
+.theme-leave-active {
+  transition: all 0.1s ease-in-out;
+}
+
+.theme-enter-from,
+.theme-leave-to {
+  opacity: 0;
+}
+
+.size-enter-active,
+.size-leave-active,
+.type-enter-active,
+.type-leave-active {
+  transition: all 0.2s ease-in-out;
+}
+
+.size-enter-active,
+.size-leave-active,
+.type-enter-active,
+.type-leave-active {
   opacity: 0;
 }
 
