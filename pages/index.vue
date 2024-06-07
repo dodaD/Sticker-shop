@@ -1,52 +1,74 @@
 <template>
-  <span class=""> STICKERS </span>
+  <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
   <div class="flex w-fit mx-auto xl:w-10/12 md:w-11/12">
-    <div class="basis-1/4">
-      <span class=""> Filters </span>
+    <div class="basis-1/4 xl:mr-8 mr-2 hidden lg:block">
+      <div class="border-solid border-b pb-4 border-indigo-500">Filters</div>
 
-      <div class="mx-auto">Type</div>
-      <div class="" v-for="filter in getAllFilters('type')">
-        <input
-          type="checkbox"
-          :value="filter"
-          v-model="appliedFilters"
-          :id="filter"
-        />
-        <label>Show only {{ filter }} </label>
+      <div class="py-2">
+        Type
+        <div
+          class="py-[2px] flex items-center"
+          v-for="filter in getAllFilters('type')"
+        >
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+            class="hover:cursor-pointer"
+          />
+          <label class="pl-[5px]">Show only {{ filter }} </label>
+        </div>
       </div>
 
-      <div class="">Size</div>
-      <div class="" v-for="filter in getAllFilters('size')">
-        <input
-          type="checkbox"
-          :value="filter"
-          v-model="appliedFilters"
-          :id="filter"
-        />
-        <label>Show only {{ filter }} </label>
+      <div class="py-2 border-solid border-t pb-4 border-indigo-500">
+        Size
+        <div
+          class="py-[2px] flex items-center"
+          v-for="filter in getAllFilters('size')"
+        >
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+            class="hover:cursor-pointer"
+          />
+          <label class="pl-[5px]">Show only {{ filter }} </label>
+        </div>
       </div>
 
-      <div class="">Theme</div>
-      <div class="" v-for="filter in getAllFilters('theme')">
-        <input
-          type="checkbox"
-          :value="filter"
-          v-model="appliedFilters"
-          :id="filter"
-        />
-        <label>Show only {{ filter }} </label>
+      <div class="py-2 border-solid border-t pb-4 border-indigo-500">
+        Theme
+        <div
+          class="py-[2px] flex items-center"
+          v-for="filter in getAllFilters('theme')"
+        >
+          <input
+            type="checkbox"
+            :value="filter"
+            v-model="appliedFilters"
+            :id="filter"
+            class="hover:cursor-pointer"
+          />
+          <label class="pl-[5px]">Show only {{ filter }} </label>
+        </div>
       </div>
     </div>
 
-    <div class="grid xl:grid-cols-3 md:grid-cols-2 gap-4 basis-2/3">
-      <div v-for="product in filtredProducts" class="">
-        <productFile
-          :title="product.title"
-          :price="product.price"
-          :img="product.imgURL"
-        />
-      </div>
+    <div
+      class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-2/3"
+    >
+      <TransitionGroup name="list">
+        <div v-for="product in filtredProducts" class="">
+          <productFile
+            :title="product.title"
+            :price="product.price"
+            :img="product.imgURL"
+          />
+        </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>
@@ -94,40 +116,40 @@ function getAllFilters(filter) {
 </script>
 
 <style>
-.page-title {
-  font-size: 30px;
-  margin: 20px auto 50px;
-  width: 100px;
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
 }
 
-.wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+
+  border: 1px solid #cacece;
+  border-radius: 2px;
+  width: 15px;
+  height: 15px;
+  background-color: #f1f1f1;
+  display: grid;
+  place-content: center;
 }
 
-.menu-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
+input[type="checkbox"]:checked::before {
+  content: "";
+  background-color: white;
+  width: 7px;
+  height: 7px;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
-.filter-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.underline-for-sections {
-  height: 25px;
-  font-size: 20px;
-  border-bottom: 1px solid black;
-  width: 100%;
-}
-
-.products-wrapper {
-  display: flex;
-  height: fit-content;
+input[type="checkbox"]:checked {
+  background-color: black;
+  border: 1px solid black;
 }
 </style>
