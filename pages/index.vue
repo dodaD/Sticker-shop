@@ -1,7 +1,7 @@
 <template>
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
-  <div class="flex w-fit mx-auto xl:w-10/12 md:w-11/12">
+  <div class="flex w-fit mx-auto lg:w-10/12 md:w-11/12">
     <div class="basis-1/4 xl:mr-8 mr-2 hidden lg:block">
       <div class="border-solid border-b pb-4 border-indigo-500">Filters</div>
 
@@ -87,11 +87,9 @@
       </div>
     </div>
 
-    <div
-      class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-2/3"
-    >
+    <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-2/3">
       <TransitionGroup name="products">
-        <div v-for="product in filtredProducts" class="">
+        <div v-for="product in filtredProducts" class="row-span-12">
           <productFile
             :title="product.title"
             :price="product.price"
