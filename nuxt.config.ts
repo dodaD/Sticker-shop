@@ -1,5 +1,8 @@
 export default defineNuxtConfig({
-  css: ["@/assets/css/main.css"],
+  css: [
+    "@/assets/css/main.css",
+    "@fortawesome/fontawesome-svg-core/styles.css",
+  ],
   modules: [
     // ...
     "@pinia/nuxt",
@@ -9,5 +12,8 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+  build: {
+    transpile: ["@fortawesome/vue-fontawesome"],
   },
 });

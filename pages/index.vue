@@ -2,7 +2,7 @@
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
   <div class="flex w-fit mx-auto lg:w-10/12 md:w-11/12">
-    <div class="basis-1/4 xl:mr-8 mr-2 hidden lg:block">
+    <div class="basis-1/4 mr-8 hidden lg:block">
       <div class="border-solid border-b pb-4 border-indigo-500">Filters</div>
 
       <div class="py-2">
@@ -11,7 +11,18 @@
           <button
             class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
             @click="showTypes = !showTypes"
-          />
+          >
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              v-if="showTypes"
+              class="text-white"
+            />
+            <font-awesome-icon
+              :icon="['fas', 'chevron-up']"
+              v-if="!showTypes"
+              class="text-white"
+            />
+          </button>
         </div>
 
         <TransitionGroup name="type">
@@ -19,6 +30,7 @@
             class="py-[2px] flex items-center"
             v-for="filter in getAllFilters('type')"
             v-if="showTypes"
+            :key="filter"
           >
             <input
               type="checkbox"
@@ -38,7 +50,18 @@
           <button
             class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
             @click="showSizes = !showSizes"
-          />
+          >
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              v-if="showSizes"
+              class="text-white"
+            />
+            <font-awesome-icon
+              :icon="['fas', 'chevron-up']"
+              v-if="!showSizes"
+              class="text-white"
+            />
+          </button>
         </div>
 
         <TransitionGroup name="size">
@@ -46,6 +69,7 @@
             class="py-[2px] flex items-center"
             v-for="filter in getAllFilters('size')"
             v-if="showSizes"
+            :key="filter"
           >
             <input
               type="checkbox"
@@ -65,7 +89,18 @@
           <button
             class="w-[22px] h-[22px] bg-neutral-950 rounded-full"
             @click="showThemes = !showThemes"
-          />
+          >
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              v-if="showThemes"
+              class="text-white"
+            />
+            <font-awesome-icon
+              :icon="['fas', 'chevron-up']"
+              v-if="!showThemes"
+              class="text-white"
+            />
+          </button>
         </div>
 
         <TransitionGroup name="theme">
@@ -73,6 +108,7 @@
             class="py-[2px] flex items-center"
             v-for="filter in getAllFilters('theme')"
             v-if="showThemes"
+            :key="filter"
           >
             <input
               type="checkbox"
@@ -87,17 +123,33 @@
       </div>
     </div>
 
-    <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-2/3">
-      <TransitionGroup name="products">
-        <div v-for="product in filtredProducts" class="row-span-12">
-          <productFile
-            :title="product.title"
-            :price="product.price"
-            :img="product.imgURL"
-          />
+    <div class="basis-full lg:basis-2/3">
+      <div class="flex w-full">
+        <div
+          v-for="filter in appliedFilters"
+          class="w-fit rounded-2xl bg-zinc-300 px-4 py-1 mb-2 mr-1 last:mr-0"
+        >
+          {{ filter }}
+          <button @click="removeFilter(filter)">
+            <font-awesome-icon :icon="['fas', 'xmark']" />
+          </button>
         </div>
-      </TransitionGroup>
+      </div>
+
+      <!-- END; FormulaUnit FORMATER -->
+      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 mt-4">
+        <TransitionGroup name="products">
+          <div v-for="product in filtredProducts" :key="product.id">
+            <productFile
+              :title="product.title"
+              :price="product.price"
+              :img="product.imgURL"
+            />
+          </div>
+        </TransitionGroup>
+      </div>
     </div>
+    <!-- END; FormulaUnit FORMATER -->
   </div>
 </template>
 
@@ -117,7 +169,7 @@ const filtredProducts = computed(() => {
     return store.response.products;
   }
 
-  let allFitredProducts = new Set();
+  let allFiltredProducts = new Set();
 
   for (let filter of appliedFilters.value) {
     const allProductsWithThisFilter = store.response.products.filter(
@@ -130,10 +182,10 @@ const filtredProducts = computed(() => {
       },
     );
     for (let product of allProductsWithThisFilter) {
-      allFitredProducts.add(product);
+      allFiltredProducts.add(product);
     }
   }
-  return allFitredProducts;
+  return allFiltredProducts;
 });
 
 function getAllFilters(filter) {
@@ -144,13 +196,18 @@ function getAllFilters(filter) {
   });
   return Array.from(uniqueTypes);
 }
+
+function removeFilter(filter) {
+  appliedFilters.value = appliedFilters.value.filter((item) => item !== filter);
+}
 </script>
 
 <style>
 .products-enter-active,
 .products-leave-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
 }
+
 .products-enter-from,
 .products-leave-to {
   opacity: 0;
