@@ -5,16 +5,24 @@
     <filterComponent />
 
     <div class="basis-full lg:basis-2/3">
-      <div class="flex w-full">
+      <div class="flex flex-wrap w-full items-center">
         <div
           v-for="filter in appliedFilters.filters"
-          class="w-fit rounded-2xl bg-zinc-300 px-4 py-1 mb-2 mr-1 last:mr-0"
+          class="w-fit rounded-2xl shrink-0 bg-zinc-300 px-4 py-1 mb-2 mr-1 last:mr-0"
         >
           {{ filter }}
           <button @click="removeFilter(filter)">
             <font-awesome-icon :icon="['fas', 'xmark']" />
           </button>
         </div>
+
+        <button
+          class="underline h-fit mb-2 ml-4"
+          v-if="appliedFilters.filters.length != 0"
+          @click="appliedFilters.$reset"
+        >
+          Clear all
+        </button>
       </div>
 
       <!-- END; FormulaUnit FORMATER -->
@@ -43,7 +51,6 @@ import filterComponent from "~/components/filterComponent.vue";
 
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
-const backgroundBlack = ref(false);
 
 const filtredProducts = computed(() => {
   if (appliedFilters.filters.length === 0) {

@@ -3,5 +3,9 @@ import { defineStore } from "pinia";
 export const useAppliedFiltersStore = defineStore("appliedFilters", () => {
   const filters = ref([]);
 
-  return { filters };
+  function $reset() {
+    filters.value = [];
+  }
+
+  return { filters, $reset };
 });

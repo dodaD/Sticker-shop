@@ -21,7 +21,7 @@ export const useProductsStore = defineStore("products", () => {
         price: "1.00",
         type: "sticker",
         size: "small",
-        theme: "flower",
+        theme: "15-inch laptop",
       },
       {
         id: 3,

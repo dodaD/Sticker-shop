@@ -68,7 +68,7 @@
             :id="filter"
             class="hover:cursor-pointer"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
+          <label class="pl-[5px]">{{ filter }} </label>
         </div>
       </TransitionGroup>
     </div>
@@ -107,7 +107,7 @@
             :id="filter"
             class="hover:cursor-pointer"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
+          <label class="pl-[5px]"> {{ filter }} </label>
         </div>
       </TransitionGroup>
     </div>
@@ -136,8 +136,8 @@
         <div
           class="py-[2px] flex items-center"
           v-for="filter in getAllFilters('theme')"
-          v-if="showThemes"
           :key="filter"
+          v-if="showThemes"
         >
           <input
             type="checkbox"
@@ -146,7 +146,7 @@
             :id="filter"
             class="hover:cursor-pointer"
           />
-          <label class="pl-[5px]">Show only {{ filter }} </label>
+          <label class="pl-[5px]">{{ filter }} </label>
         </div>
       </TransitionGroup>
     </div>
@@ -156,7 +156,6 @@
 <script setup>
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
-const emit = defineEmits(["changeBackgroundToSeeFilters"]);
 
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
@@ -176,9 +175,6 @@ function getAllFilters(filter) {
 
 function openFilters() {
   showFilters.value = true;
-  if (showFilters.value) {
-    emit("changeBackgroundToSeeFilters");
-  }
 }
 </script>
 
