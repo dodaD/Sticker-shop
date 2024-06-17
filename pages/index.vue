@@ -1,14 +1,14 @@
 <template>
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
-  <div class="flex w-fit mx-auto lg:w-10/12 md:w-11/12">
+  <div class="flex w-fit mx-auto lg:w-10/12 md:w-11/12 relative">
     <filterComponent />
 
-    <div class="basis-full lg:basis-2/3">
-      <div class="flex flex-wrap w-full items-center">
+    <div class="basis-full lg:basis-2/3 relative">
+      <div class="flex flex-wrap w-[80%] items-center min-h-[40px]">
         <div
           v-for="filter in appliedFilters.filters"
-          class="w-fit rounded-2xl shrink-0 bg-zinc-300 px-4 py-1 mb-2 mr-1 last:mr-0"
+          class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0"
         >
           {{ filter }}
           <button @click="removeFilter(filter)">
@@ -17,16 +17,18 @@
         </div>
 
         <button
-          class="underline h-fit mb-2 ml-4"
+          class="underline h-fit ml-4"
           v-if="appliedFilters.filters.length != 0"
           @click="appliedFilters.$reset"
         >
           Clear all
         </button>
+
+        <div class="w-fit absolute top-0 right-0">Sort by: Feautred</div>
       </div>
 
       <!-- END; FormulaUnit FORMATER -->
-      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 mt-4">
+      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 mt-8">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
             <productFile

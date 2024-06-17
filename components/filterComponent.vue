@@ -1,17 +1,17 @@
 <template>
   <div
-    class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden"
+    class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10"
     v-if="showFilters"
   />
   <button
-    class="lg:hidden fixed bottom-4 right-[45%] bg-black px-6 py-4 rounded-full text-white"
+    class="lg:hidden fixed bottom-4 right-[45%] bg-black px-6 py-4 rounded-full text-white z-20"
     @click="openFilters"
     v-if="!showFilters"
   >
     Show filters
   </button>
   <div
-    class="lg:basis-1/4 lg:bg-transparent lg:mr-8 lg:static lg:block"
+    class="lg:basis-1/4 lg:bg-transparent lg:mr-8 lg:static lg:block z-20"
     :class="{
       fixed: showFilters,
       'rounded-lg': showFilters,
