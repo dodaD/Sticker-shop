@@ -18,34 +18,35 @@
         </div>
 
         <button
-          class="underline h-fit ml-4 my-auto w-fit"
+          class="h-fit ml-4 my-auto w-fit underline-animation clear-all-button"
           v-if="appliedFilters.filters.length != 0"
           @click="appliedFilters.$reset"
         >
-          Clear all
-        </button>
-      </div>
+            Clear all
+          </button>
+        </div>
 
-      <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
-        <div class="flex"> 
-          Sort by: 
-          <div @click="showDropDownSort = !showDropDownSort" class="ml-2 cursor-pointer prevent-select">
-            Featured
-          </div>
+        <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
+          <div class="flex"  @mouseover="hover = true" @mouseleave="hover = false"> 
+            Sort by: 
+            <div @click="showDropDownSort = !showDropDownSort" class="ml-2 cursor-pointer prevent-select underline-animation"
+            :class="{'underline-animation-line-move': hover}"
+            >
+              Featured
+            </div>
 
           <button
-            class="w-[22px] h-[22px] bg-neutral-950 rounded-full ml-2"
+            class="w-[22px] h-[22px] rounded-full ml-2"
+            :class="{'text-white': hover, 'bg-neutral-950': hover, 'bg-neutral-200': !hover}"
             @click="showDropDownSort = !showDropDownSort"
           >
             <font-awesome-icon
               :icon="['fas', 'chevron-down']"
               v-if="showDropDownSort"
-              class="text-white"
             />
             <font-awesome-icon
               :icon="['fas', 'chevron-up']"
               v-if="!showDropDownSort"
-              class="text-white"
             />
           </button>
         </div>
@@ -113,6 +114,7 @@ function sortProducts(sortType, reverse) {
   console.log(sortType, reverse)
 }
 
+const hover = ref(false);
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
 const sortBy = ref("");
@@ -213,6 +215,21 @@ function removeFilter(filter) {
 .type-enter-active,
 .type-leave-active {
   opacity: 0;
+}
+
+.underline-animation {
+  background: 
+    linear-gradient(to right, transparent, transparent),
+    linear-gradient(to right, rgb(0, 0, 0), rgb(0, 0, 0));
+  background-size: 100% 0.1em, 0 0.1em;
+  background-position: 100% 100%, 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 400ms;
+}
+
+.underline-animation-line-move,
+.clear-all-button:hover {
+  background-size: 0 0.1em, 100% 0.1em;
 }
 
 input[type="checkbox"] {
