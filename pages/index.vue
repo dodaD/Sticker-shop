@@ -1,14 +1,15 @@
 <template>
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
-  <div class="flex w-fit mx-auto lg:w-10/12 md:w-11/12 relative">
-    <filterComponent />
+  <div class="w-fit mx-auto lg:w-10/12 md:w-11/12">
+    <div class="flex mb-7 min-h-[40px]">
 
-    <div class="basis-full lg:basis-2/3 relative">
-      <div class="flex flex-wrap w-[80%] items-center min-h-[40px]">
+      <div class="lg:basis-[25%] lg:mr-8 hidden lg:block">Filters</div>
+
+      <div class="flex flex-wrap basis-full lg:basis-[55%]">
         <div
           v-for="filter in appliedFilters.filters"
-          class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0"
+          class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2"
         >
           {{ filter }}
           <button @click="removeFilter(filter)">
@@ -17,18 +18,64 @@
         </div>
 
         <button
-          class="underline h-fit ml-4"
+          class="underline h-fit ml-4 my-auto w-fit"
           v-if="appliedFilters.filters.length != 0"
           @click="appliedFilters.$reset"
         >
           Clear all
         </button>
-
-        <div class="w-fit absolute top-0 right-0">Sort by: Feautred</div>
       </div>
 
-      <!-- END; FormulaUnit FORMATER -->
-      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 mt-8">
+      <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
+        <div class="flex"> 
+          Sort by: 
+          <div @click="showDropDownSort = !showDropDownSort" class="ml-2 cursor-pointer prevent-select">
+            Featured
+          </div>
+
+          <button
+            class="w-[22px] h-[22px] bg-neutral-950 rounded-full ml-2"
+            @click="showDropDownSort = !showDropDownSort"
+          >
+            <font-awesome-icon
+              :icon="['fas', 'chevron-down']"
+              v-if="showDropDownSort"
+              class="text-white"
+            />
+            <font-awesome-icon
+              :icon="['fas', 'chevron-up']"
+              v-if="!showDropDownSort"
+              class="text-white"
+            />
+          </button>
+        </div>
+
+        <div class="bg-white
+          border-[1px]
+          border-zinc-300
+          rounded-lg
+          absolute
+          top-[40px]
+          right-0
+          p-4
+          flex
+          flex-col"
+          v-if="showDropDownSort">
+          <div v-for="sort in dropDownSorts" 
+            @click="sortProducts(sort.type, sort.reverse)"
+            class="cursor-pointer mb-2 prevent-select whitespace-nowrap">
+            {{sort.type}}, {{ sort.start }} - {{ sort.end }}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="flex">
+      <filterComponent />
+
+      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-[75%]">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
             <productFile
@@ -40,7 +87,7 @@
         </TransitionGroup>
       </div>
     </div>
-    <!-- END; FormulaUnit FORMATER -->
+
   </div>
 </template>
 
@@ -51,15 +98,55 @@ import { useAppliedFiltersStore } from "@/stores/appliedFilters";
 import productFile from "@/components/productFile.vue";
 import filterComponent from "~/components/filterComponent.vue";
 
+const showDropDownSort = ref(false);
+const dropDownSorts = [
+  {"type": "Alphabetical", "start":"a", "end":"z", "reverse":false},
+  {"type": "Alphabetical", "start":"z", "end":"a", "reverse":true},
+  {"type": "Price", "start":"low", "end":"high", "reverse":false},
+  {"type": "Price", "start":"high", "end":"low", "reverse":true},
+]; // TODO: add date filter
+
+
+function sortProducts(sortType, reverse) {
+  sortBy.value = sortType;
+  isSortReverse.value = reverse;
+  console.log(sortType, reverse)
+}
+
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
+const sortBy = ref("");
+const isSortReverse = ref(false);
 
 const filtredProducts = computed(() => {
-  if (appliedFilters.filters.length === 0) {
-    return store.response.products;
+  let allFiltredProducts = store.response.products;
+
+  if (sortBy.value == "Price") {
+    allFiltredProducts.sort((a, b) => {
+      if (isSortReverse.value) {
+        return b.price - a.price;
+      }
+      return a.price - b.price;
+    });
   }
 
-  let allFiltredProducts = new Set();
+  if (sortBy.value == "Alphabetical") {
+    allFiltredProducts.sort((a, b) => {
+      if (a.title < b.title) {
+        return isSortReverse.value ? 1 : -1;
+      }
+      if (a.title > b.title) {
+        return isSortReverse.value ? -1 : 1;
+      }
+
+    })
+  }
+
+  if (appliedFilters.filters.length === 0) {
+    return allFiltredProducts;
+  }
+
+  allFiltredProducts = new Set();
 
   for (let filter of appliedFilters.filters) {
     const allProductsWithThisFilter = store.response.products.filter(
@@ -75,6 +162,7 @@ const filtredProducts = computed(() => {
       allFiltredProducts.add(product);
     }
   }
+
   return allFiltredProducts;
 });
 
@@ -86,6 +174,13 @@ function removeFilter(filter) {
 </script>
 
 <style>
+
+.prevent-select {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
 .products-enter-active,
 .products-leave-active {
   transition: all 0.3s ease;

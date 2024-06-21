@@ -11,7 +11,7 @@
     Show filters
   </button>
   <div
-    class="lg:basis-1/4 lg:bg-transparent lg:mr-8 lg:static lg:block z-20"
+    class="lg:basis-[25%] lg:bg-transparent lg:mr-8 lg:static lg:block z-20"
     :class="{
       fixed: showFilters,
       'rounded-lg': showFilters,
@@ -33,7 +33,7 @@
       <font-awesome-icon :icon="['fas', 'xmark']" />
     </button>
 
-    <div class="border-solid border-b pb-4 border-indigo-500">Filters</div>
+    <div class="border-solid border-b border-indigo-500"/>
     <div class="py-2">
       <div class="flex items-center justify-between">
         Type
@@ -57,7 +57,7 @@
       <TransitionGroup name="type">
         <div
           class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('type')"
+          v-for="filter in types"
           v-if="showTypes"
           :key="filter"
         >
@@ -96,7 +96,7 @@
       <TransitionGroup name="size">
         <div
           class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('size')"
+          v-for="filter in sizes"
           v-if="showSizes"
           :key="filter"
         >
@@ -135,7 +135,7 @@
       <TransitionGroup name="theme">
         <div
           class="py-[2px] flex items-center"
-          v-for="filter in getAllFilters('theme')"
+          v-for="filter in themes"
           :key="filter"
           v-if="showThemes"
         >
@@ -172,6 +172,10 @@ function getAllFilters(filter) {
   });
   return Array.from(uniqueTypes);
 }
+
+const types = getAllFilters("type");
+const sizes = getAllFilters("size");
+const themes = getAllFilters("theme");
 
 function openFilters() {
   showFilters.value = true;
