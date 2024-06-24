@@ -7,47 +7,34 @@
       <div class="lg:basis-[25%] lg:mr-8 hidden lg:block">Filters</div>
 
       <div class="flex flex-wrap basis-full lg:basis-[55%]">
-        <div
-          v-for="filter in appliedFilters.filters"
-          class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2"
-        >
+        <div v-for="filter in appliedFilters.filters"
+          class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2">
           {{ filter }}
           <button @click="removeFilter(filter)">
             <font-awesome-icon :icon="['fas', 'xmark']" />
           </button>
         </div>
 
-        <button
-          class="h-fit ml-4 my-auto w-fit underline-animation clear-all-button"
-          v-if="appliedFilters.filters.length != 0"
-          @click="appliedFilters.$reset"
-        >
-            Clear all
-          </button>
-        </div>
+        <button class="h-fit ml-4 my-auto w-fit underline-animation clear-all-button"
+          v-if="appliedFilters.filters.length != 0" @click="appliedFilters.$reset">
+          Clear all
+        </button>
+      </div>
 
-        <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
-          <div class="flex"  @mouseover="hover = true" @mouseleave="hover = false"> 
-            Sort by: 
-            <div @click="showDropDownSort = !showDropDownSort" class="ml-2 cursor-pointer prevent-select underline-animation"
-            :class="{'underline-animation-line-move': hover}"
-            >
-              Featured
-            </div>
+      <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
+        <div class="flex" @mouseover="hover = true" @mouseleave="hover = false">
+          Sort by:
+          <div @click="showDropDownSort = !showDropDownSort"
+            class="ml-2 cursor-pointer prevent-select underline-animation"
+            :class="{ 'underline-animation-line-move': hover }">
+            Featured
+          </div>
 
-          <button
-            class="w-[22px] h-[22px] rounded-full ml-2"
-            :class="{'text-white': hover, 'bg-neutral-950': hover, 'bg-neutral-200': !hover}"
-            @click="showDropDownSort = !showDropDownSort"
-          >
-            <font-awesome-icon
-              :icon="['fas', 'chevron-down']"
-              v-if="showDropDownSort"
-            />
-            <font-awesome-icon
-              :icon="['fas', 'chevron-up']"
-              v-if="!showDropDownSort"
-            />
+          <button class="w-[22px] h-[22px] rounded-full ml-2"
+            :class="{ 'text-white': hover, 'bg-neutral-950': hover, 'bg-neutral-200': !hover }"
+            @click="showDropDownSort = !showDropDownSort">
+            <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showDropDownSort" />
+            <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showDropDownSort" />
           </button>
         </div>
 
@@ -60,12 +47,10 @@
           right-0
           p-4
           flex
-          flex-col"
-          v-if="showDropDownSort">
-          <div v-for="sort in dropDownSorts" 
-            @click="sortProducts(sort.type, sort.reverse)"
+          flex-col" v-if="showDropDownSort">
+          <div v-for="sort in dropDownSorts" @click="sortProducts(sort.type, sort.reverse)"
             class="cursor-pointer mb-2 prevent-select whitespace-nowrap">
-            {{sort.type}}, {{ sort.start }} - {{ sort.end }}
+            {{ sort.type }}, {{ sort.start }} - {{ sort.end }}
           </div>
         </div>
       </div>
@@ -79,11 +64,7 @@
       <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-[75%]">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
-            <productFile
-              :title="product.title"
-              :price="product.price"
-              :img="product.imgURL"
-            />
+            <productFile :title="product.title" :price="product.price" :img="product.imgURL" />
           </div>
         </TransitionGroup>
       </div>
@@ -101,10 +82,10 @@ import filterComponent from "~/components/filterComponent.vue";
 
 const showDropDownSort = ref(false);
 const dropDownSorts = [
-  {"type": "Alphabetical", "start":"a", "end":"z", "reverse":false},
-  {"type": "Alphabetical", "start":"z", "end":"a", "reverse":true},
-  {"type": "Price", "start":"low", "end":"high", "reverse":false},
-  {"type": "Price", "start":"high", "end":"low", "reverse":true},
+  { "type": "Alphabetical", "start": "a", "end": "z", "reverse": false },
+  { "type": "Alphabetical", "start": "z", "end": "a", "reverse": true },
+  { "type": "Price", "start": "low", "end": "high", "reverse": false },
+  { "type": "Price", "start": "high", "end": "low", "reverse": true },
 ]; // TODO: add date filter
 
 
@@ -176,11 +157,13 @@ function removeFilter(filter) {
 </script>
 
 <style>
-
 .prevent-select {
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
 }
 
 .products-enter-active,
@@ -218,7 +201,7 @@ function removeFilter(filter) {
 }
 
 .underline-animation {
-  background: 
+  background:
     linear-gradient(to right, transparent, transparent),
     linear-gradient(to right, rgb(0, 0, 0), rgb(0, 0, 0));
   background-size: 100% 0.1em, 0 0.1em;
