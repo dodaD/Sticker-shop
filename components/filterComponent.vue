@@ -4,7 +4,7 @@
     @click="openFilters" v-if="!showFilters">
     Show filters
   </button>
-  <div class="lg:basis-[25%] lg:bg-transparent lg:mr-8 lg:block z-20" v-element-visibility="onElementVisibility" :class="{
+  <div class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit w-[30vh]" :class="{
     fixed: showFilters,
     'rounded-lg': showFilters,
     'bg-white': showFilters,
@@ -19,9 +19,10 @@
     'md:h-[98%]': showFilters,
     block: showFilters,
     hidden: !showFilters,
-    fixed: !isVisible,
-    'top-0': !isVisible,
-    'lg:static': isVisible,
+    fixed: isFixedPosition,
+    absolute: !isFixedPosition,
+    'top-[10px]': isFixedPosition,
+    'top-0': !isFixedPosition,
   }">
     <button @click="showFilters = false" class="lg:hidden">
       <font-awesome-icon :icon="['fas', 'xmark']" />
@@ -87,17 +88,8 @@
 <script setup>
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
-import { vElementVisibility } from "@vueuse/components";
-import { ref } from "vue";
 
-const target = ref(null);
-const isVisible = ref(false);
-
-function onElementVisibility(state) {
-  console.log("Hello");
-  isVisible.value = state;
-}
-
+const props = defineProps(['isFixedPosition'])
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
 const showTypes = ref(true);

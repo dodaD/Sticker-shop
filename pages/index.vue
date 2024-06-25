@@ -4,9 +4,9 @@
   <div class="w-fit mx-auto lg:w-10/12 md:w-11/12">
     <div class="flex mb-7 min-h-[40px]">
 
-      <div class="lg:basis-[25%] lg:mr-8 hidden lg:block">Filters</div>
+      <div class="lg:w-[25%] lg:mr-8 hidden lg:block" v-element-visibility="onElementVisibility">Filters</div>
 
-      <div class="flex flex-wrap basis-full lg:basis-[55%]">
+      <div class="flex flex-wrap w-full lg:w-[55%]">
         <div v-for="filter in appliedFilters.filters"
           class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2">
           {{ filter }}
@@ -58,10 +58,10 @@
     </div>
 
 
-    <div class="flex">
-      <filterComponent />
+    <div class="flex relative">
+      <filterComponent :isFixedPosition="!isVisible" />
 
-      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 basis-full lg:basis-[75%]">
+      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-[75%] ml-auto">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
             <productFile :title="product.title" :price="product.price" :img="product.imgURL" />
@@ -77,8 +77,16 @@
 import { computed } from "vue";
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
+import { vElementVisibility } from "@vueuse/components";
 import productFile from "@/components/productFile.vue";
 import filterComponent from "~/components/filterComponent.vue";
+
+const isVisible = ref(false);
+
+function onElementVisibility(state) {
+  console.log("Hello");
+  isVisible.value = state;
+}
 
 const showDropDownSort = ref(false);
 const dropDownSorts = [
