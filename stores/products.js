@@ -84,7 +84,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "sun",
       },
       {
-        id: 1,
+        id: 9,
         title: "a sticker frog",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -94,7 +94,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "frog",
       },
       {
-        id: 2,
+        id: 10,
         title: "d sticker flower",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -104,7 +104,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "15-inch laptop",
       },
       {
-        id: 3,
+        id: 11,
         title: "k sticker flower",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -114,7 +114,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "flower",
       },
       {
-        id: 4,
+        id: 12,
         title: "c postcard sun",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -124,7 +124,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "sun",
       },
       {
-        id: 5,
+        id: 13,
         title: "a sticker frog",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -134,7 +134,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "frog",
       },
       {
-        id: 6,
+        id: 14,
         title: "d sticker flower",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -144,7 +144,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "15-inch laptop",
       },
       {
-        id: 7,
+        id: 15,
         title: "k sticker flower",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",
@@ -154,7 +154,7 @@ export const useProductsStore = defineStore("products", () => {
         theme: "flower",
       },
       {
-        id: 8,
+        id: 16,
         title: "c postcard sun",
         datetime: "2024-05-14 13:00:00",
         imgURL: "/images/kidd.png",

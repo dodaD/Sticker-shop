@@ -38,16 +38,8 @@
           </button>
         </div>
 
-        <div class="bg-white
-          border-[1px]
-          border-zinc-300
-          rounded-lg
-          absolute
-          top-[40px]
-          right-0
-          p-4
-          flex
-          flex-col" v-if="showDropDownSort">
+        <div class="bg-white border-[1px] border-zinc-300 rounded-lg absolute top-[40px] right-0 p-4 flex z-40 flex-col"
+          v-if="showDropDownSort">
           <div v-for="sort in dropDownSorts" @click="sortProducts(sort.type, sort.reverse)"
             class="cursor-pointer mb-2 prevent-select whitespace-nowrap">
             {{ sort.type }}, {{ sort.start }} - {{ sort.end }}
@@ -84,7 +76,6 @@ import filterComponent from "~/components/filterComponent.vue";
 const isVisible = ref(false);
 
 function onElementVisibility(state) {
-  console.log("Hello");
   isVisible.value = state;
 }
 
@@ -98,9 +89,25 @@ const dropDownSorts = [
 
 
 function sortProducts(sortType, reverse) {
-  sortBy.value = sortType;
-  isSortReverse.value = reverse;
-  console.log(sortType, reverse)
+  if (sortType == "Price") {
+    store.response.products = store.response.products.sort((a, b) => {
+      if (reverse) {
+        return b.price - a.price;
+      }
+      return a.price - b.price;
+    });
+  }
+
+  if (sortType == "Alphabetical") {
+    store.response.products = store.response.products.sort((a, b) => {
+      if (a.title < b.title) {
+        return reverse ? 1 : -1;
+      }
+      if (a.title > b.title) {
+        return reverse ? -1 : 1;
+      }
+    })
+  }
 }
 
 const hover = ref(false);
@@ -111,27 +118,6 @@ const isSortReverse = ref(false);
 
 const filtredProducts = computed(() => {
   let allFiltredProducts = store.response.products;
-
-  if (sortBy.value == "Price") {
-    allFiltredProducts.sort((a, b) => {
-      if (isSortReverse.value) {
-        return b.price - a.price;
-      }
-      return a.price - b.price;
-    });
-  }
-
-  if (sortBy.value == "Alphabetical") {
-    allFiltredProducts.sort((a, b) => {
-      if (a.title < b.title) {
-        return isSortReverse.value ? 1 : -1;
-      }
-      if (a.title > b.title) {
-        return isSortReverse.value ? -1 : 1;
-      }
-
-    })
-  }
 
   if (appliedFilters.filters.length === 0) {
     return allFiltredProducts;
@@ -248,6 +234,6 @@ input[type="checkbox"]:checked::before {
 
 input[type="checkbox"]:checked {
   background-color: black;
-  border: 1px solid black;
+  border: 1px solidblack;
 }
 </style>

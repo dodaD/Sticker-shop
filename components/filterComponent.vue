@@ -4,7 +4,7 @@
     @click="openFilters" v-if="!showFilters">
     Show filters
   </button>
-  <div class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit w-[30vh]" :class="{
+  <div class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] w-full" :class="{
     fixed: showFilters,
     'rounded-lg': showFilters,
     'bg-white': showFilters,
@@ -21,8 +21,8 @@
     hidden: !showFilters,
     fixed: isFixedPosition,
     absolute: !isFixedPosition,
-    'top-[10px]': isFixedPosition,
-    'top-0': !isFixedPosition,
+    'md:top-[10px]': isFixedPosition,
+    'md:top-0': !isFixedPosition,
   }">
     <button @click="showFilters = false" class="lg:hidden">
       <font-awesome-icon :icon="['fas', 'xmark']" />
