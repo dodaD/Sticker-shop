@@ -4,26 +4,31 @@
     @click="openFilters" v-if="!showFilters">
     Show filters
   </button>
-  <div class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] w-full" :class="{
-    fixed: showFilters,
-    'rounded-lg': showFilters,
-    'bg-white': showFilters,
-    'px-2': showFilters,
-    'py-2': showFilters,
-    'bottom-4': showFilters,
-    'w-[98%]': showFilters,
-    'h-[55%]': showFilters,
-    'right-[1%]': showFilters,
-    'md:top-[1%]': showFilters,
-    'md:w-[45%]': showFilters,
-    'md:h-[98%]': showFilters,
-    block: showFilters,
-    hidden: !showFilters,
-    fixed: isFixedPosition,
-    absolute: !isFixedPosition,
-    'md:top-[10px]': isFixedPosition,
-    'md:top-0': !isFixedPosition,
-  }">
+  <div
+    class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] lg:translate-x-0 lg:left-0 lg:visible filter-wrapper-animation"
+    :class="{
+      fixed: showFilters,
+      'rounded-lg': showFilters,
+      'bg-white': showFilters,
+      'px-2': showFilters,
+      'py-2': showFilters,
+      'bottom-4': showFilters,
+      'w-[98%]': showFilters,
+      'h-[55%]': showFilters,
+      'mx-[1%]': showFilters,
+      'md:mx-0': showFilters,
+      'md:top-[1%]': showFilters,
+      'md:w-[45%]': showFilters,
+      'md:h-[98%]': showFilters,
+      visible: showFilters,
+      invisible: !showFilters,
+      'md:translate-x-0': showFilters,
+      'md:translate-x-[-500px]': !showFilters,
+      fixed: isFixedPosition,
+      absolute: !isFixedPosition,
+      'md:top-[10px]': isFixedPosition,
+      'md:top-0': !isFixedPosition,
+    }">
     <button @click="showFilters = false" class="lg:hidden">
       <font-awesome-icon :icon="['fas', 'xmark']" />
     </button>
@@ -116,6 +121,10 @@ function openFilters() {
 </script>
 
 <style>
+.filter-wrapper-animation {
+  transition: visibility 0s, translate 0.5s linear;
+}
+
 .title {
   font-size: 20px;
 }
