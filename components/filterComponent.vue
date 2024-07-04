@@ -1,36 +1,52 @@
 <template>
-  <div class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10" v-if="showFilters" />
+  <div class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10" v-if="showBackgroundTin" />
   <button class="lg:hidden fixed bottom-4 right-[45%] bg-black px-6 py-4 rounded-full text-white z-20"
     @click="openFilters" v-if="!showFilters">
     Show filters
   </button>
-  <div
-    class="transition-transform ease-linear duration-150 lg:px-0 lg:py-0 lg:transition-none lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] lg:translate-x-0 lg:visible"
-    :class="{
-      fixed: showFilters,
-      'rounded-lg': showFilters,
-      'bg-white': showFilters,
+  <div class="md:transition-[width]
+    transition-[height]
+    ease-in-out 
+    duration-300
+    lg:px-0
+    lg:py-0
+    lg:transition-none
+    lg:bg-transparent
+    lg:mr-8
+    lg:block
+    bg-white
+    z-20
+    lg:h-fit
+    lg:w-[20vw] 
+    md:ml-0
+    md:m-0
+    md:h-[98%] 
+    h-[55%]
+    lg:translate-x-0
+    lg:visible
+    w-[98%]
+    ml-[1%]
+    bottom-4
+    lg:*:visible" :class="{
+      fixed: showBackgroundTin,
+      'rounded-lg': showBackgroundTin,
       'px-2': showFilters,
       'py-2': showFilters,
-      'bottom-4': showFilters,
-      'w-[98%]': showFilters,
-      'h-[55%]': showFilters,
-      'mx-[1%]': showFilters,
-      'md:mx-0': showFilters,
-      'md:top-[1%]': showFilters,
+      'md:w-[0px]': !showFilters,
+      'md:top-[1%]': showBackgroundTin,
       'md:w-[45%]': showFilters,
-      'md:h-[98%]': showFilters,
-      visible: showFilters,
-      invisible: !showFilters,
-      'md:translate-x-[110%]': showFilters,
-      'md:translate-x-[calc(100%+200px)]': !showFilters,
+      'md:translate-x-[-20px]': showFilters,
+      'h-0': !showFilters,
+      'visible': showFilters,
+      'invisible': !showBackgroundTin,
+      '*:invisible': !showFilters,
       fixed: isFixed,
       absolute: !isFixed,
-      'md:top-[10px]': isFixed,
-      'md:top-0': !isFixed,
+      'lg:top-[10px]': isFixed,
+      'lg:top-0': !isFixed,
       'lg:left-0': !isFixed,
     }">
-    <button @click="showFilters = false" class="lg:hidden">
+    <button @click="closeFilters" class="lg:hidden">
       <font-awesome-icon :icon="['fas', 'xmark']" />
     </button>
 
@@ -102,6 +118,7 @@ const showTypes = ref(true);
 const showSizes = ref(true);
 const showThemes = ref(true);
 const showFilters = ref(false);
+const showBackgroundTin = ref(false);
 
 function getAllFilters(filter) {
   let uniqueTypes = new Set();
@@ -118,14 +135,16 @@ const themes = getAllFilters("theme");
 
 function openFilters() {
   showFilters.value = true;
+  showBackgroundTin.value = true;
+}
+
+function closeFilters() {
+  showFilters.value = false;
+  setTimeout(() => showBackgroundTin.value = false, 299);
 }
 </script>
 
 <style>
-.filter-wrapper-animation {
-  transition: visibility 0s, transform 0.5s linear;
-}
-
 .custom-check {
   -webkit-appearance: none;
   appearance: none;
