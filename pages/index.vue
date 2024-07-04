@@ -4,7 +4,7 @@
   <div class="w-fit mx-auto lg:w-10/12 md:w-11/12">
     <div class="flex mb-7 min-h-[40px]">
 
-      <div class="lg:w-[25%] lg:mr-8 hidden lg:block" v-element-visibility="onElementVisibility">Filters</div>
+      <div class="lg:w-[25%] hidden lg:block" v-element-visibility="onElementVisibility">Filters</div>
 
       <div class="flex flex-wrap w-full lg:w-[55%]">
         <div v-for="filter in appliedFilters.filters"
@@ -16,7 +16,7 @@
         </div>
 
         <button class="h-fit ml-4 my-auto w-fit underline-animation clear-all-button"
-          v-if="appliedFilters.filters.length != 0" @click="appliedFilters.$reset">
+          v-if="appliedFilters.filters.length != 0" @click="clearAll">
           Clear all
         </button>
       </div>
@@ -27,7 +27,7 @@
           <div @click="showDropDownSort = !showDropDownSort"
             class="ml-2 cursor-pointer prevent-select underline-animation"
             :class="{ 'underline-animation-line-move': hover }">
-            Featured
+            {{ typeOfSort }}
           </div>
 
           <button class="w-[22px] h-[22px] rounded-full ml-2"
@@ -40,9 +40,10 @@
 
         <div class="bg-white border-[1px] border-zinc-300 rounded-lg absolute top-[40px] right-0 p-4 flex z-40 flex-col"
           v-if="showDropDownSort">
-          <div v-for="sort in dropDownSorts" @click="sortProducts(sort.type, sort.reverse)"
+          <div v-for="sort in dropDownSorts" @click="sortProducts(sort.type, sort.reverse, sort)"
             class="cursor-pointer mb-2 prevent-select whitespace-nowrap">
-            {{ sort.type }}, {{ sort.start }} - {{ sort.end }}
+            <div v-if="sort.type == 'Featured'">Featured</div>
+            <div v-else>{{ sort.type }}, {{ sort.start }} - {{ sort.end }} </div>
           </div>
         </div>
       </div>
@@ -51,7 +52,7 @@
 
 
     <div class="flex relative">
-      <filterComponent :isFixedPosition="!isVisible" />
+      <filterComponent :isFixed="!isVisible" />
 
       <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-[75%] ml-auto">
         <TransitionGroup name="products">
@@ -85,45 +86,29 @@ const dropDownSorts = [
   { "type": "Alphabetical", "start": "z", "end": "a", "reverse": true },
   { "type": "Price", "start": "low", "end": "high", "reverse": false },
   { "type": "Price", "start": "high", "end": "low", "reverse": true },
+  { "type": "Featured", "reverse": false },
 ]; // TODO: add date filter
 
+const sortBy = ref("");
+const isSortReverse = ref(false);
+const typeOfSort = ref("Featured");
 
-function sortProducts(sortType, reverse) {
-  if (sortType == "Price") {
-    store.response.products = store.response.products.sort((a, b) => {
-      if (reverse) {
-        return b.price - a.price;
-      }
-      return a.price - b.price;
-    });
+function sortProducts(sort, reverse, sortObject) {
+  sortBy.value = sort;
+  isSortReverse.value = reverse;
+  if (sortObject.type == "Featured") {
+    typeOfSort.value = "Featured";
+    return;
   }
-
-  if (sortType == "Alphabetical") {
-    store.response.products = store.response.products.sort((a, b) => {
-      if (a.title < b.title) {
-        return reverse ? 1 : -1;
-      }
-      if (a.title > b.title) {
-        return reverse ? -1 : 1;
-      }
-    })
-  }
+  typeOfSort.value = sortObject.type + ", " + sortObject.start + " - " + sortObject.end;
 }
 
 const hover = ref(false);
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
-const sortBy = ref("");
-const isSortReverse = ref(false);
 
 const filtredProducts = computed(() => {
-  let allFiltredProducts = store.response.products;
-
-  if (appliedFilters.filters.length === 0) {
-    return allFiltredProducts;
-  }
-
-  allFiltredProducts = new Set();
+  let allFiltredProducts = new Set();
 
   for (let filter of appliedFilters.filters) {
     const allProductsWithThisFilter = store.response.products.filter(
@@ -140,6 +125,30 @@ const filtredProducts = computed(() => {
     }
   }
 
+  if (appliedFilters.filters.length == 0) {
+    allFiltredProducts = store.response.products;
+  }
+
+  if (sortBy.value == "Price") {
+    allFiltredProducts = Array.from(allFiltredProducts).sort((a, b) => {
+      if (isSortReverse.value) {
+        return b.price - a.price;
+      }
+      return a.price - b.price;
+    });
+  }
+
+  if (sortBy.value == "Alphabetical") {
+    allFiltredProducts = Array.from(allFiltredProducts).sort((a, b) => {
+      if (a.title < b.title) {
+        return isSortReverse.value ? 1 : -1;
+      }
+      if (a.title > b.title) {
+        return isSortReverse.value ? -1 : 1;
+      }
+    })
+  }
+
   return allFiltredProducts;
 });
 
@@ -147,6 +156,11 @@ function removeFilter(filter) {
   appliedFilters.$patch((state) => {
     state.filters = state.filters.filter((item) => item !== filter);
   });
+}
+
+function clearAll() {
+  appliedFilters.$reset();
+  sortBy.value = "";
 }
 </script>
 
@@ -207,33 +221,5 @@ function removeFilter(filter) {
 .underline-animation-line-move,
 .clear-all-button:hover {
   background-size: 0 0.1em, 100% 0.1em;
-}
-
-input[type="checkbox"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: #fff;
-  margin: 0;
-
-  border: 1px solid #cacece;
-  border-radius: 2px;
-  width: 15px;
-  height: 15px;
-  background-color: #f1f1f1;
-  display: grid;
-  place-content: center;
-}
-
-input[type="checkbox"]:checked::before {
-  content: "";
-  background-color: white;
-  width: 7px;
-  height: 7px;
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-}
-
-input[type="checkbox"]:checked {
-  background-color: black;
-  border: 1px solidblack;
 }
 </style>

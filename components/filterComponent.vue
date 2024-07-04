@@ -5,7 +5,7 @@
     Show filters
   </button>
   <div
-    class="lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] lg:translate-x-0 lg:left-0 lg:visible filter-wrapper-animation"
+    class="transition-transform ease-linear duration-150 lg:px-0 lg:py-0 lg:transition-none lg:bg-transparent lg:mr-8 lg:block z-20 h-fit lg:w-[20vw] lg:translate-x-0 lg:visible"
     :class="{
       fixed: showFilters,
       'rounded-lg': showFilters,
@@ -22,12 +22,13 @@
       'md:h-[98%]': showFilters,
       visible: showFilters,
       invisible: !showFilters,
-      'md:translate-x-0': showFilters,
-      'md:translate-x-[-500px]': !showFilters,
-      fixed: isFixedPosition,
-      absolute: !isFixedPosition,
-      'md:top-[10px]': isFixedPosition,
-      'md:top-0': !isFixedPosition,
+      'md:translate-x-[110%]': showFilters,
+      'md:translate-x-[calc(100%+200px)]': !showFilters,
+      fixed: isFixed,
+      absolute: !isFixed,
+      'md:top-[10px]': isFixed,
+      'md:top-0': !isFixed,
+      'lg:left-0': !isFixed,
     }">
     <button @click="showFilters = false" class="lg:hidden">
       <font-awesome-icon :icon="['fas', 'xmark']" />
@@ -46,7 +47,7 @@
       <TransitionGroup name="type">
         <div class="py-[2px] flex items-center" v-for="filter in types" v-if="showTypes" :key="filter">
           <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
-            class="hover:cursor-pointer" />
+            class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]">{{ filter }} </label>
         </div>
       </TransitionGroup>
@@ -64,7 +65,7 @@
       <TransitionGroup name="size">
         <div class="py-[2px] flex items-center" v-for="filter in sizes" v-if="showSizes" :key="filter">
           <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
-            class="hover:cursor-pointer" />
+            class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]"> {{ filter }} </label>
         </div>
       </TransitionGroup>
@@ -82,7 +83,7 @@
       <TransitionGroup name="theme">
         <div class="py-[2px] flex items-center" v-for="filter in themes" :key="filter" v-if="showThemes">
           <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
-            class="hover:cursor-pointer" />
+            class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]">{{ filter }} </label>
         </div>
       </TransitionGroup>
@@ -94,7 +95,7 @@
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
 
-const props = defineProps(['isFixedPosition'])
+const props = defineProps(['isFixed'])
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
 const showTypes = ref(true);
@@ -122,7 +123,35 @@ function openFilters() {
 
 <style>
 .filter-wrapper-animation {
-  transition: visibility 0s, translate 0.5s linear;
+  transition: visibility 0s, transform 0.5s linear;
+}
+
+.custom-check {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+
+  border: 1px solid #cacece;
+  border-radius: 2px;
+  width: 15px;
+  height: 15px;
+  background-color: #f1f1f1;
+  display: grid;
+  place-content: center;
+}
+
+.custom-check:checked::before {
+  content: "";
+  background-color: white;
+  width: 7px;
+  height: 7px;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.custom-check:checked {
+  background-color: black;
+  border: 1px solid black;
 }
 
 .title {
