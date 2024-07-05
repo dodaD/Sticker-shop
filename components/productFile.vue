@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col hover:bg-stone-200/65 hover:rounded-md z-0">
-    <img v-if="img" :src="img" class="aspect-[5/7]" />
+  <div class="flex flex-col hover:bg-stone-200/65 hover:rounded-md z-0 justify-center items-center">
+    <img v-if="img" :src="img" class="w-[260px] h-[370px]" />
     <span class="mx-auto"> {{ title }} </span>
     <span class="mx-auto mb-2"> {{ price }} </span>
   </div>

@@ -1,12 +1,12 @@
 <template>
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
-  <div class="w-fit mx-auto lg:w-10/12 md:w-11/12">
+  <div class="w-fit mx-auto xl:max-w-[1400px] xl:min-w-[1100px] md:max-w-[540px] lg:min-w-[850px]">
     <div class="flex mb-7 min-h-[40px]">
 
-      <div class="lg:w-[25%] hidden lg:block" v-element-visibility="onElementVisibility">Filters</div>
+      <div class="lg:w-[250px] hidden lg:block mr-auto" v-element-visibility="onElementVisibility">Filters</div>
 
-      <div class="flex flex-wrap w-full lg:w-[55%]">
+      <div class="flex flex-wrap w-full xl:max-w-[600px] lg:max-w-[380px]">
         <div v-for="filter in appliedFilters.filters"
           class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2">
           {{ filter }}
@@ -15,13 +15,13 @@
           </button>
         </div>
 
-        <button class="h-fit ml-4 my-auto w-fit underline-animation clear-all-button"
+        <button class="h-fit mr-4 ml-1 my-auto w-fit underline-animation clear-all-button"
           v-if="appliedFilters.filters.length != 0" @click="clearAll">
           Clear all
         </button>
       </div>
 
-      <div class="w-fit ml-auto shrink-0 hidden lg:block relative">
+      <div class="w-fit xl:ml-auto hidden lg:block relative">
         <div class="flex" @mouseover="hover = true" @mouseleave="hover = false">
           Sort by:
           <div @click="showDropDownSort = !showDropDownSort"
@@ -54,7 +54,7 @@
     <div class="flex relative">
       <filterComponent :isFixed="!isVisible" />
 
-      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-[75%] ml-auto">
+      <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-fit ml-auto">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
             <productFile :title="product.title" :price="product.price" :img="product.imgURL" />

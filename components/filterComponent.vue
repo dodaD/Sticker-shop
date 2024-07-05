@@ -1,5 +1,6 @@
 <template>
-  <div class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10" v-if="showBackgroundTin" />
+  <div class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10" v-if="showBackgroundTin"
+    @click="closeFilters" />
   <button class="lg:hidden fixed bottom-4 right-[45%] bg-black px-6 py-4 rounded-full text-white z-20"
     @click="openFilters" v-if="!showFilters">
     Show filters
@@ -17,7 +18,7 @@
     bg-white
     z-20
     lg:h-fit
-    lg:w-[20vw] 
+    lg:w-[250px] 
     md:ml-0
     md:m-0
     md:h-[98%] 
@@ -25,7 +26,7 @@
     lg:translate-x-0
     lg:visible
     w-[98%]
-    ml-[1%]
+    left-[1%]
     bottom-4
     lg:*:visible" :class="{
       fixed: showBackgroundTin,
@@ -35,6 +36,7 @@
       'md:w-[0px]': !showFilters,
       'md:top-[1%]': showBackgroundTin,
       'md:w-[45%]': showFilters,
+      'md:left-[30px]': showFilters,
       'md:translate-x-[-20px]': showFilters,
       'h-0': !showFilters,
       'visible': showFilters,
