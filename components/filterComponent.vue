@@ -27,6 +27,7 @@
     lg:visible
     w-[98%]
     left-[1%]
+    lg:left-[unset]
     bottom-4
     lg:*:visible" :class="{
       fixed: showBackgroundTin,
@@ -55,10 +56,10 @@
     <div class="border-solid border-b border-indigo-500" />
     <div class="py-2">
       <div class="flex items-center justify-between">
-        Type
+        <span class="font-semibold my-2">Type</span>
         <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showTypes = !showTypes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showTypes" class="text-white" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showTypes" class="text-white" />
+          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showTypes" class="text-white translate-y-[-1px]" />
+          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showTypes" class="text-white translate-y-[-1px]" />
         </button>
       </div>
 
@@ -73,10 +74,10 @@
 
     <div class="py-2 border-solid border-t border-indigo-500">
       <div class="flex items-center justify-between">
-        Size
+        <span class="font-semibold my-2">Size</span>
         <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showSizes = !showSizes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showSizes" class="text-white" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showSizes" class="text-white" />
+          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showSizes" class="text-white translate-y-[-1px]" />
+          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showSizes" class="text-white translate-y-[-1px]" />
         </button>
       </div>
 
@@ -91,10 +92,10 @@
 
     <div class="py-2 border-solid border-t border-indigo-500">
       <div class="flex items-center justify-between">
-        Theme
+        <span class="font-semibold my-2">Theme</span>
         <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showThemes = !showThemes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showThemes" class="text-white" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showThemes" class="text-white" />
+          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showThemes" class="text-white translate-y-[-1px]" />
+          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showThemes" class="text-white translate-y-[-1px]" />
         </button>
       </div>
 
@@ -113,7 +114,7 @@
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
 
-const props = defineProps(['isFixed'])
+const props = defineProps(['isFixed']);
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
 const showTypes = ref(true);
@@ -122,18 +123,32 @@ const showThemes = ref(true);
 const showFilters = ref(false);
 const showBackgroundTin = ref(false);
 
-function getAllFilters(filter) {
+const types = computed(() => {
   let uniqueTypes = new Set();
 
   store.response.products.forEach((product) => {
-    uniqueTypes.add(product[filter]);
+    uniqueTypes.add(product.type);
   });
   return Array.from(uniqueTypes);
-}
+});
 
-const types = getAllFilters("type");
-const sizes = getAllFilters("size");
-const themes = getAllFilters("theme");
+const sizes = computed(() => {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    uniqueTypes.add(product.size);
+  });
+  return Array.from(uniqueTypes);
+});
+
+const themes = computed(() => {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    uniqueTypes.add(product.theme);
+  });
+  return Array.from(uniqueTypes);
+});
 
 function openFilters() {
   showFilters.value = true;
@@ -171,7 +186,7 @@ function closeFilters() {
 }
 
 .custom-check:checked {
-  background-color: black;
+  background-color:black;
   border: 1px solid black;
 }
 

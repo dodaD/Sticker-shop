@@ -1,12 +1,15 @@
 <template>
   <span class="flex text-4xl mx-auto w-fit mt-6 mb-24"> STICKERS </span>
 
-  <div class="w-fit mx-auto xl:max-w-[1400px] xl:min-w-[1100px] md:max-w-[540px] lg:min-w-[850px]">
-    <div class="flex mb-7 min-h-[40px]">
+  <div
+    class="w-fit mx-auto xl:max-w-[1460px] xl:min-w-[1160px] md:max-w-[580px] lg:min-w-[910px]  items-center flex-col flex sm:block">
 
-      <div class="lg:w-[250px] hidden lg:block mr-auto" v-element-visibility="onElementVisibility">Filters</div>
+    <div class="lg:w-[250px] hidden lg:block mr-auto mt-auto font-semibold mr-[48px]"
+      v-element-visibility="onElementVisibility">Filters
+    </div>
 
-      <div class="flex flex-wrap w-full xl:max-w-[600px] lg:max-w-[380px]">
+    <div class="flex min-h-[40px] mb-7 sm:max-w-[580px] md:max-w-[unset] sm:p-0 px-[30px]">
+      <div class="flex flex-wrap lg:hidden">
         <div v-for="filter in appliedFilters.filters"
           class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2">
           {{ filter }}
@@ -21,9 +24,9 @@
         </button>
       </div>
 
-      <div class="w-fit xl:ml-auto hidden lg:block relative">
+      <div class="w-fit xl:ml-auto hidden lg:block relative shrink-0 ml-auto">
         <div class="flex" @mouseover="hover = true" @mouseleave="hover = false">
-          Sort by:
+          <span class="font-semibold">Sort by:</span>
           <div @click="showDropDownSort = !showDropDownSort"
             class="ml-2 cursor-pointer prevent-select underline-animation"
             :class="{ 'underline-animation-line-move': hover }">
@@ -47,12 +50,10 @@
           </div>
         </div>
       </div>
-
     </div>
 
-
     <div class="flex relative">
-      <filterComponent :isFixed="!isVisible" />
+      <filterComponent ref="filters" :isFixed="!isVisible" />
 
       <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-fit ml-auto">
         <TransitionGroup name="products">
@@ -67,7 +68,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onBeforeMount } from "vue";
 import { useProductsStore } from "@/stores/products";
 import { useAppliedFiltersStore } from "@/stores/appliedFilters";
 import { vElementVisibility } from "@vueuse/components";
@@ -106,6 +107,17 @@ function sortProducts(sort, reverse, sortObject) {
 const hover = ref(false);
 const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
+const filters = ref(null);
+
+async function getProducts() {
+  const response = await fetch('http://localhost/api/products');
+  const json = await response.json();
+  return json;
+}
+
+onBeforeMount(async () => {
+  store.response = await getProducts();
+})
 
 const filtredProducts = computed(() => {
   let allFiltredProducts = new Set();
