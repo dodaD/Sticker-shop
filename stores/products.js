@@ -1,20 +1,13 @@
 import { defineStore } from "pinia";
 
 export const useProductsStore = defineStore("products", () => {
-  let response = {
-    "products": [
-      {
-        "id": 0,
-        "created_at": null,
-        "updated_at": null,
-        "title": "",
-        "imgURL": "",
-        "theme": "",
-        "size": "",
-        "type": "",
-        "price": ""
-      }]
-  };
+  let response = {};
 
-  return { response };
+  async function getProducts() {
+    const response = await fetch('http://localhost/api/products');
+    const json = await response.json();
+    return json;
+  }
+
+  return { response, getProducts };
 });

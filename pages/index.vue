@@ -58,7 +58,7 @@
       <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-fit ml-auto">
         <TransitionGroup name="products">
           <div v-for="product in filtredProducts" :key="product.id">
-            <productFile :title="product.title" :price="product.price" :img="product.imgURL" />
+            <productFile :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
           </div>
         </TransitionGroup>
       </div>
@@ -109,15 +109,7 @@ const store = useProductsStore();
 let appliedFilters = useAppliedFiltersStore();
 const filters = ref(null);
 
-async function getProducts() {
-  const response = await fetch('http://localhost/api/products');
-  const json = await response.json();
-  return json;
-}
-
-onBeforeMount(async () => {
-  store.response = await getProducts();
-})
+store.response = await store.getProducts();
 
 const filtredProducts = computed(() => {
   let allFiltredProducts = new Set();

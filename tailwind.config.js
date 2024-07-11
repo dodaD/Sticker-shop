@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["pages/*.vue", "components/*.vue"],
+  content: ["pages/*.vue", "components/*.vue", "pages/products/*.vue"],
   theme: {
     extend: {
       aspectRatio: {
