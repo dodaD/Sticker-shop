@@ -5,12 +5,18 @@
     </div>
 
     <img :src="'/images/' + product.imgURL" class="w-[260px] h-[370px]" </div> /> -->
-  <swiper :modules="modules" :slides-per-view="1" :space-between="50" navigation "
+  <swiper :modules="modules" :slides-per-view="1" :space-between="50" navigation @swiper="onSwiper"
     :scrollbar="{ draggable: true }" class="max-w-[540px] h-[740px]">
     <swiper-slide v-for="picture in picturesForThisProduct.pictures">
       <img :src="'/images/' + picture" class="scale-[2] translate-x-[50%] translate-y-[50%]" />
     </swiper-slide>
   </swiper>
+  <div class="flex column">
+    <img :src="'/images/' + picture" v-for="picture in picturesForThisProduct.pictures"
+      @click="changeActiveSlide(picture)" />
+  </div>
+
+
 </template>
 
 <script setup>
@@ -40,6 +46,15 @@ const product = computed(() => {
 
 const additionalPictures = [{ id: 1, pictures: ['albedo.jpg', 'xiao.jpg', 'venti.jpg'] }]; //зробити це якось в БД або поговорити з Сергійком чи те що декілька картинок для одного товару має сенс
 const picturesForThisProduct = additionalPictures.find((item) => item.id == route.params.id);
+const slider = ref(null);
+const onSwiper = (swiper) => {
+  slider.value = swiper;
+};
+
+function changeActiveSlide(picture) {
+  const index = picturesForThisProduct.pictures.findIndex((item) => item == picture);
+  slider.value.slideTo(index);
+}
 </script>
 
 <style>
