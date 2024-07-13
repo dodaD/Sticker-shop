@@ -6,21 +6,22 @@
 
     <img :src="'/images/' + product.imgURL" class="w-[260px] h-[370px]" </div> /> -->
   <swiper :modules="modules" :slides-per-view="1" :space-between="50" navigation @swiper="onSwiper"
-    :scrollbar="{ draggable: true }" class="max-w-[540px] h-[740px]">
+    :scrollbar="{ draggable: true }" class="max-w-[540px] h-[740px]" @slideChange="onSlideChange">
     <swiper-slide v-for="picture in picturesForThisProduct.pictures">
       <img :src="'/images/' + picture" class="scale-[2] translate-x-[50%] translate-y-[50%]" />
     </swiper-slide>
   </swiper>
   <div class="flex column">
     <img :src="'/images/' + picture" v-for="picture in picturesForThisProduct.pictures"
-      @click="changeActiveSlide(picture)" />
+      @click="changeActiveSlide(picture)"
+      :class="{ border: activePicture == picture, 'border-sky-500': activePicture == picture, }" />
   </div>
 
 
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { useProductsStore } from "@/stores/products";
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -51,10 +52,28 @@ const onSwiper = (swiper) => {
   slider.value = swiper;
 };
 
+const activePicture = ref(picturesForThisProduct.pictures[0]);
 function changeActiveSlide(picture) {
   const index = picturesForThisProduct.pictures.findIndex((item) => item == picture);
   slider.value.slideTo(index);
+  findActiveSlide();
 }
+
+function findActiveSlide() {
+  for (let i = 0; i < picturesForThisProduct.pictures.length; i++) {
+    if (slider.value.activeIndex === i) {
+      activePicture.value = picturesForThisProduct.pictures[i];
+    }
+  }
+}
+
+const onSlideChange = () => {
+  for (let i = 0; i < picturesForThisProduct.pictures.length; i++) {
+    if (slider.value.activeIndex === i) {
+      activePicture.value = picturesForThisProduct.pictures[i];
+    }
+  }
+};
 </script>
 
 <style>
