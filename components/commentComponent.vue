@@ -3,6 +3,7 @@ const props = defineProps({
   text: String,
   date: String,
   stars: Number,
+  name: String,
 });
 
 const createdAt = ref('');
@@ -13,32 +14,18 @@ createdAt.value = date.value.toLocaleString('en-US', options);
 
 
 <template>
-  <div class="w-[98%] h-fit flex flex-col border-[1px] rounded-lg p-2 shadow-lg">
-    <div class="flex items-center justify-center mb-4 mt-2">
+  <div class="w-[98%] h-fit flex flex-col border-[1px] rounded-lg p-2 shadow-lg mx-auto">
+    <span class="font-semibold mt-2">{{ props.name }}</span>
+    <div class="flex items-center justify-center mb-4">
       <span>{{ createdAt }}</span>
-
-      <div class="block  overflow-hidden w-fit ml-auto">
-        <div class="inline-block relative h-[100%]">
-          <span class="block active-star overflow-hidden text-amber-200 whitespace-nowrap relative z-40">
-            <font-awesome-icon :icon="['fas', 'star']" v-for="i in 5" aria-hidden="true" />
-          </span>
-
-          <span class="absolute text-slate-200 top-0 left-0 stars-inactive">
-            <font-awesome-icon :icon="['fas', 'star']" v-for="i in 5" />
-          </span>
-        </div>
-      </div>
+      <starsComponent :stars="props.stars / 5 * 100" />
     </div>
     <span>{{ props.text }}</span>
   </div>
 </template>
 
 <style scoped>
-.stars-inactive {
-  -webkit-text-stroke: initial;
-}
-
-.active-star {
-  width: v-bind((props.stars / 5 * 100) + '%');
+.title {
+  font-size: 20px;
 }
 </style>
