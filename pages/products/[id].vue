@@ -142,9 +142,15 @@ const showStatisticOfRating = ref(false);
         <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[200px] w-[400px]"
           v-if="showStatisticOfRating">
           <div v-for="i in 5" class="star-statistics">
-            <div class="bg-black h-[20px] text-white"> {{ ratingStatistics[0][i] / rating.amount_of_comments * 100 }}%
+            <div class="bg-black h-[20px] relative">
+              <div class="absolute right-[-60px] text-red-600"
+                :class="{ 'right-[-100px]': ratingStatistics[0][i] != 0 }">
+                {{ i }}: {{ (ratingStatistics[0][i] / rating.amount_of_comments *
+                  100).toPrecision(2) }}%
+              </div>
             </div>
             <!-- Done by styles; cause I'm dumb -->
+
           </div>
           <!-- Pop-out menu with statistic of ratings -->
         </div>
@@ -164,22 +170,22 @@ const showStatisticOfRating = ref(false);
 }
 
 .star-statistics:nth-child(1) {
-  width: v-bind(ratingStatistics[0][1] / rating.amount_of_comments * 100  + '%');
+  width: v-bind(ratingStatistics[0][1] / rating.amount_of_comments * 100 + '%');
 }
 
 .star-statistics:nth-child(2) {
-  width: v-bind(ratingStatistics[0][2] / rating.amount_of_comments * 100  + '%');
+  width: v-bind(ratingStatistics[0][2] / rating.amount_of_comments * 100 + '%');
 }
 
 .star-statistics:nth-child(3) {
-  width: v-bind(ratingStatistics[0][3] / rating.amount_of_comments * 100  + '%');
+  width: v-bind(ratingStatistics[0][3] / rating.amount_of_comments * 100 + '%');
 }
 
 .star-statistics:nth-child(4) {
-  width: v-bind(ratingStatistics[0][4] / rating.amount_of_comments * 100  + '%');
+  width: v-bind(ratingStatistics[0][4] / rating.amount_of_comments * 100 + '%');
 }
 
 .star-statistics:nth-child(5) {
-  width: v-bind(ratingStatistics[0][5] / rating.amount_of_comments * 100  + '%');
+  width: v-bind(ratingStatistics[0][5] / rating.amount_of_comments * 100 + '%');
 }
 </style>
