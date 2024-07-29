@@ -19,10 +19,18 @@ if (store.response.products === undefined) {
 const fetchComments = await store.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
 
-const ratingStatistics = await store.getStarStatisticsForProduct(route.params.id);
-
 const rating = await store.getStarsForProduct(route.params.id);
 const stars = parseFloat(rating.stars) / 5 * 100;
+
+const fetchRatingStatistics = await store.getStarStatisticsForProduct(route.params.id);
+function calculateRatingStatistics() {
+  const percentageOfStars = [];
+  for (let i = 1; i <= 5; i++) {
+    percentageOfStars[i] = (fetchRatingStatistics[0][i] / rating.amount_of_comments * 80).toPrecision(2);
+  }
+  return percentageOfStars;
+};
+const ratingStatistics = calculateRatingStatistics();
 
 const nextPageLink = ref(comments.value.next_page_url);
 
@@ -133,26 +141,21 @@ const showStatisticOfRating = ref(false);
   </div>
 
   <div class="mt-20 mb-5"> <!-- Comments -->
-    <div class="font-semibold mb-8 flex content-start flex-col flex-wrap">
-      <span>Comments:</span>
+    <div class="mb-8 flex content-start flex-col flex-wrap">
+      <span class="font-semibold">Comments:</span>
       <button class="flex items-center cursor-pointer relative" @click="showStatisticOfRating = !showStatisticOfRating">
         <starsComponent :stars="stars" />
         <span class="ml-2">{{ rating.amount_of_comments }} Reviews</span>
 
         <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[200px] w-[400px]"
           v-if="showStatisticOfRating">
-          <div v-for="i in 5" class="star-statistics">
-            <div class="bg-black h-[20px] relative">
-              <div class="absolute right-[-60px] text-red-600"
-                :class="{ 'right-[-100px]': ratingStatistics[0][i] != 0 }">
-                {{ i }}: {{ (ratingStatistics[0][i] / rating.amount_of_comments *
-                  100).toPrecision(2) }}%
-              </div>
-            </div>
-            <!-- Done by styles; cause I'm dumb -->
-
-          </div>
           <!-- Pop-out menu with statistic of ratings -->
+          <div v-for="i in 5" class="star-statistics my-3 relative flex">
+            <div class="w-[65%] bg-slate-200 w-full h-[20px] absolute top-0 right-[0px]" />
+            <div class="bg-amber-300 h-[20px] star-procent absolute top-0 right-[0px]" />
+            <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
+            <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
+          </div>
         </div>
       </button>
     </div>
@@ -170,22 +173,32 @@ const showStatisticOfRating = ref(false);
 }
 
 .star-statistics:nth-child(1) {
-  width: v-bind(ratingStatistics[0][1] / rating.amount_of_comments * 100 + '%');
+  .star-procent {
+    width: v-bind(ratingStatistics[1] + '%');
+  }
 }
 
 .star-statistics:nth-child(2) {
-  width: v-bind(ratingStatistics[0][2] / rating.amount_of_comments * 100 + '%');
+  .star-procent {
+    width: v-bind(ratingStatistics[2] + '%');
+  }
 }
 
 .star-statistics:nth-child(3) {
-  width: v-bind(ratingStatistics[0][3] / rating.amount_of_comments * 100 + '%');
+  .star-procent {
+    width: v-bind(ratingStatistics[3] + '%');
+  }
 }
 
 .star-statistics:nth-child(4) {
-  width: v-bind(ratingStatistics[0][4] / rating.amount_of_comments * 100 + '%');
+  .star-procent {
+    width: v-bind(ratingStatistics[4] + '%');
+  }
 }
 
 .star-statistics:nth-child(5) {
-  width: v-bind(ratingStatistics[0][5] / rating.amount_of_comments * 100 + '%');
+  .star-procent {
+    width: v-bind(ratingStatistics[5] + '%');
+  }
 }
 </style>
