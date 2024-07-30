@@ -18,6 +18,17 @@ if (store.response.products === undefined) {
 }
 const fetchComments = await store.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
+const filteredByStarsComments = ref(comments.value.data);
+
+function filterCommentsByStars(i) {
+  filteredByStarsComments.value = comments.value.data.filter((comment) => {
+    return comment.stars == i;
+  })
+}
+
+function clearCommentsFilters() {
+  filteredByStarsComments.value = comments.value.data;
+}
 
 const rating = await store.getStarsForProduct(route.params.id);
 const stars = parseFloat(rating.stars) / 5 * 100;
@@ -85,6 +96,7 @@ function changeOption(option) {
 const scaledUpImg = ref('');
 const zoomInMore = ref(false);
 const showStatisticOfRating = ref(false);
+
 </script>
 
 <template>
@@ -140,19 +152,24 @@ const showStatisticOfRating = ref(false);
     </div>
   </div>
 
-  <div class="mt-20 mb-5"> <!-- Comments -->
+  <div class="mt-20 mb-5 flex flex-col"> <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
       <span class="font-semibold">Comments:</span>
       <button class="flex items-center cursor-pointer relative" @click="showStatisticOfRating = !showStatisticOfRating">
         <starsComponent :stars="stars" />
         <span class="ml-2">{{ rating.amount_of_comments }} Reviews</span>
 
-        <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[200px] w-[400px]"
+        <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[250px] w-[400px]"
           v-if="showStatisticOfRating">
+
+          <span class="font-semibold">
+            <font-awesome-icon :icon="['fas', 'star']" aria-hidden="true" class="text-amber-300" />
+            {{ Number(rating.stars).toPrecision(3) }}
+          </span>
           <!-- Pop-out menu with statistic of ratings -->
-          <div v-for="i in 5" class="star-statistics my-3 relative flex">
-            <div class="w-[65%] bg-slate-200 w-full h-[20px] absolute top-0 right-[0px]" />
-            <div class="bg-amber-300 h-[20px] star-procent absolute top-0 right-[0px]" />
+          <div v-for="i in 5" class="star-statistics my-3 relative flex" @click="filterCommentsByStars(i)">
+            <div class="w-[65%] bg-slate-200 w-full h-[20px] absolute top-0 right-[0px] rounded" />
+            <div class="bg-amber-300 h-[20px] star-procent absolute top-0 left-[35%] rounded" />
             <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
@@ -160,10 +177,12 @@ const showStatisticOfRating = ref(false);
       </button>
     </div>
 
-    <div v-for="comment in comments.data" :key="comment.id" class="my-2">
+    <div v-for="comment in filteredByStarsComments" :key="comment.id" class="my-2">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
     </div>
-    <button v-if="nextPageLink != null" @click="getMoreComments">Load more</button>
+    <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters" class="mr-auto">Clear
+      Filters</button>
+    <button v-if="nextPageLink != null" @click="getMoreComments" class="mr-auto">Load more</button>
   </div>
 </template>
 
