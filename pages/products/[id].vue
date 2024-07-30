@@ -96,7 +96,38 @@ function changeOption(option) {
 const scaledUpImg = ref('');
 const zoomInMore = ref(false);
 const showStatisticOfRating = ref(false);
+const closeStatisticRating = ref(false);
 
+function openStatistics() {
+  showStatisticOfRating.value = true;
+}
+
+const showDescription = ref(true);
+const showDelivery = ref(false);
+const showReturn = ref(false);
+
+function showAnotherTab(tabToSwitchTo) {
+  if (tabToSwitchTo == "description") {
+    showDescription.value = true;
+    showDelivery.value = false;
+    showReturn.value = false;
+    return;
+  }
+
+  if (tabToSwitchTo == "delivery") {
+    showDescription.value = false;
+    showDelivery.value = true;
+    showReturn.value = false;
+    return;
+  }
+
+  if (tabToSwitchTo == "return") {
+    showDescription.value = false;
+    showDelivery.value = false;
+    showReturn.value = true;
+    return;
+  }
+}
 </script>
 
 <template>
@@ -149,18 +180,45 @@ const showStatisticOfRating = ref(false);
           :class="{ border: activeOption.id === option.id, 'border-sky-500': activeOption.id === option.id, }"
           @click="changeOption(option.id)" />
       </div>
+
+      <div class="mt-4"> <!-- Additional tabs -->
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': showDescription, 'border-white': !showDescription }"
+          @click="showAnotherTab('description')">Description</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': showDelivery, 'border-white': !showDelivery }"
+          @click="showAnotherTab('delivery')">Delivery</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full"
+          :class="{ 'border-black': showReturn, 'border-white': !showReturn }"
+          @click="showAnotherTab('return')">Return</button>
+
+        <div class="mt-2 h-[50px]">
+          <p v-if="showDescription">
+            {{ product.description }}
+          </p>
+          <p v-if="showDelivery">
+            Here is delivery options. You pay for it; Is not included in order.
+          </p>
+          <p v-if="showReturn">
+            Returns accepted if stickers in perfect condition and none is missing. You must pay for shipping them back
+            and won't get any refund on shipping cost.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="mt-20 mb-5 flex flex-col"> <!-- Comments -->
+  <div class="mt-20 mb-5 flex flex-col" @click="closeStatisticRating = !closeStatisticRating"> <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
       <span class="font-semibold">Comments:</span>
-      <button class="flex items-center cursor-pointer relative" @click="showStatisticOfRating = !showStatisticOfRating">
+      <button class="flex items-center cursor-pointer relative" @click="openStatistics">
         <starsComponent :stars="stars" />
         <span class="ml-2">{{ rating.amount_of_comments }} Reviews</span>
 
         <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[250px] w-[400px]"
-          v-if="showStatisticOfRating">
+          v-if="showStatisticOfRating && closeStatisticRating">
 
           <span class="font-semibold">
             <font-awesome-icon :icon="['fas', 'star']" aria-hidden="true" class="text-amber-300" />
@@ -191,31 +249,31 @@ const showStatisticOfRating = ref(false);
   font-size: 20px;
 }
 
-.star-statistics:nth-child(1) {
+.star-statistics:nth-child(2) {
   .star-procent {
     width: v-bind(ratingStatistics[1] + '%');
   }
 }
 
-.star-statistics:nth-child(2) {
+.star-statistics:nth-child(3) {
   .star-procent {
     width: v-bind(ratingStatistics[2] + '%');
   }
 }
 
-.star-statistics:nth-child(3) {
+.star-statistics:nth-child(4) {
   .star-procent {
     width: v-bind(ratingStatistics[3] + '%');
   }
 }
 
-.star-statistics:nth-child(4) {
+.star-statistics:nth-child(5) {
   .star-procent {
     width: v-bind(ratingStatistics[4] + '%');
   }
 }
 
-.star-statistics:nth-child(5) {
+.star-statistics:nth-child(6) {
   .star-procent {
     width: v-bind(ratingStatistics[5] + '%');
   }
