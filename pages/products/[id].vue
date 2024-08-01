@@ -9,29 +9,32 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
-const modules = [Navigation, Pagination, Scrollbar];
+const product = computed(() => {
+  if (store.response.products !== undefined) {
+    return store.response.products.find((item) => item.id == route.params.id);
+  }
+});
 
 const route = useRoute();
 const store = useProductsStore();
 if (store.response.products === undefined) {
   store.response = await store.getProducts();
 }
+
 const fetchComments = await store.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
 const filteredByStarsComments = ref(comments.value.data);
-
 function filterCommentsByStars(i) {
   filteredByStarsComments.value = comments.value.data.filter((comment) => {
     return comment.stars == i;
   })
 }
-
 function clearCommentsFilters() {
   filteredByStarsComments.value = comments.value.data;
 }
 
 const rating = await store.getStarsForProduct(route.params.id);
-const stars = parseFloat(rating.stars) / 5 * 100;
+const avgStarsProcent = parseFloat(rating.stars) / 5 * 100;
 
 const fetchRatingStatistics = await store.getStarStatisticsForProduct(route.params.id);
 function calculateRatingStatistics() {
@@ -43,22 +46,15 @@ function calculateRatingStatistics() {
 };
 const ratingStatistics = calculateRatingStatistics();
 
-const nextPageLink = ref(comments.value.next_page_url);
-
+const getMoreCommentsLink = ref(comments.value.next_page_url);
 async function getMoreComments() {
-  const response = await fetch(nextPageLink.value);
+  const response = await fetch(getMoreCommentsLink.value);
   const json = await response.json();
   for (let i = 0; i < json.comments.data.length; i++) {
     comments.value.data.push(json.comments.data[i]);
   }
-  nextPageLink.value = json.comments.next_page_url;
+  getMoreCommentsLink.value = json.comments.next_page_url;
 }
-
-const product = computed(() => {
-  if (store.response.products !== undefined) {
-    return store.response.products.find((item) => item.id == route.params.id);
-  }
-});
 
 const additionalPictures = await store.getAdditionalPicturesForProduct(route.params.id);
 const picturesForThisProduct = additionalPictures.additional_pictures;
@@ -142,7 +138,7 @@ function showAnotherTab(tabToSwitchTo) {
           :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id, }" />
       </div> <!-- Big Picture -->
 
-      <swiper :modules="modules"
+      <swiper
         class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] md:!px-[40px] lg:translate-y-[-100px] xl:translate-y-[0px]"
         :slides-per-view="1" @swiper="onSwiper" :scrollbar="{ draggable: true }" @slideChange="onSlideChange">
         <swiper-slide v-for="picture in picturesForThisProduct">
@@ -167,7 +163,7 @@ function showAnotherTab(tabToSwitchTo) {
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
       <div class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex">
         <span>${{ product.price }}0</span>
-        <starsComponent :stars="stars" />
+        <starsComponent :stars="avgStarsProcent" />
         <span>({{ rating.amount_of_comments }})</span>
       </div>
 
@@ -194,7 +190,7 @@ function showAnotherTab(tabToSwitchTo) {
           :class="{ 'border-black': showReturn, 'border-white': !showReturn }"
           @click="showAnotherTab('return')">Return</button>
 
-        <div class="mt-2 h-[50px]">
+        <div class="mt-2 min-h-[50px] max-w-[100%]">
           <p v-if="showDescription">
             {{ product.description }}
           </p>
@@ -210,11 +206,12 @@ function showAnotherTab(tabToSwitchTo) {
     </div>
   </div>
 
-  <div class="mt-20 mb-5 flex flex-col" @click="closeStatisticRating = !closeStatisticRating"> <!-- Comments -->
+  <div class="mt-20 mb-5 flex flex-col w-full" @click="closeStatisticRating = !closeStatisticRating">
+    <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
       <span class="font-semibold">Comments:</span>
       <button class="flex items-center cursor-pointer relative" @click="openStatistics">
-        <starsComponent :stars="stars" />
+        <starsComponent :stars="avgStarsProcent" />
         <span class="ml-2">{{ rating.amount_of_comments }} Reviews</span>
 
         <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[250px] w-[400px]"
@@ -240,15 +237,11 @@ function showAnotherTab(tabToSwitchTo) {
     </div>
     <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters" class="mr-auto">Clear
       Filters</button>
-    <button v-if="nextPageLink != null" @click="getMoreComments" class="mr-auto">Load more</button>
+    <button v-if="getMoreCommentsLink != null" @click="getMoreComments" class="mr-auto">Load more</button>
   </div>
 </template>
 
 <style scoped>
-.title {
-  font-size: 20px;
-}
-
 .star-statistics:nth-child(2) {
   .star-procent {
     width: v-bind(ratingStatistics[1] + '%');

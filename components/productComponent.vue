@@ -20,9 +20,3 @@ async function openProductProfile() {
   await navigateTo({ path: '/products/' + props.id });
 }
 </script>
-
-<style>
-.title {
-  font-size: 20px;
-}
-</style>

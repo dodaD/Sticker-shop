@@ -23,9 +23,3 @@ createdAt.value = date.value.toLocaleString('en-US', options);
     <span>{{ props.text }}</span>
   </div>
 </template>
-
-<style scoped>
-.title {
-  font-size: 20px;
-}
-</style>
