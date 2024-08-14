@@ -9,61 +9,27 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
+const store = useProductsStore();
+if (store.response.products === undefined) {
+  store.response = await store.getProducts();
+}
+
+const route = useRoute();
 const product = computed(() => {
   if (store.response.products !== undefined) {
     return store.response.products.find((item) => item.id == route.params.id);
   }
 });
 
-const route = useRoute();
-const store = useProductsStore();
-if (store.response.products === undefined) {
-  store.response = await store.getProducts();
-}
-
-const fetchComments = await store.getCommentsForProduct(route.params.id);
-const comments = ref(fetchComments.comments);
-const filteredByStarsComments = ref(comments.value.data);
-function filterCommentsByStars(i) {
-  filteredByStarsComments.value = comments.value.data.filter((comment) => {
-    return comment.stars == i;
-  })
-}
-function clearCommentsFilters() {
-  filteredByStarsComments.value = comments.value.data;
-}
-
-const rating = await store.getStarsForProduct(route.params.id);
-const avgStarsProcent = parseFloat(rating.stars) / 5 * 100;
-
-const fetchRatingStatistics = await store.getStarStatisticsForProduct(route.params.id);
-function calculateRatingStatistics() {
-  const percentageOfStars = [];
-  for (let i = 1; i <= 5; i++) {
-    percentageOfStars[i] = (fetchRatingStatistics[0][i] / rating.amount_of_comments * 80).toPrecision(2);
-  }
-  return percentageOfStars;
-};
-const ratingStatistics = calculateRatingStatistics();
-
-const getMoreCommentsLink = ref(comments.value.next_page_url);
-async function getMoreComments() {
-  const response = await fetch(getMoreCommentsLink.value);
-  const json = await response.json();
-  for (let i = 0; i < json.comments.data.length; i++) {
-    comments.value.data.push(json.comments.data[i]);
-  }
-  getMoreCommentsLink.value = json.comments.next_page_url;
-}
-
-const additionalPictures = await store.getAdditionalPicturesForProduct(route.params.id);
-const picturesForThisProduct = additionalPictures.additional_pictures;
-const optionsForThisProduct = additionalPictures.optional_pictures;
 
 const slider = ref(null);
 const onSwiper = (swiper) => {
   slider.value = swiper;
 };
+
+const additionalPictures = await store.getAdditionalPicturesForProduct(route.params.id);
+const picturesForThisProduct = additionalPictures.additional_pictures;
+const optionsForThisProduct = additionalPictures.optional_pictures;
 
 const activePicture = ref(picturesForThisProduct[0]);
 const activeOption = ref(optionsForThisProduct[0]);
@@ -89,14 +55,49 @@ function changeOption(option) {
   activeOption.value = optionsForThisProduct[currentOption];
 }
 
+const fetchComments = await store.getCommentsForProduct(route.params.id);
+const comments = ref(fetchComments.comments);
+
+const filteredByStarsComments = ref(comments.value.data);
+const currentStarFilter = ref(null);
+function filterCommentsByStars(i) {
+  currentStarFilter.value = i;
+  filteredByStarsComments.value = comments.value.data.filter((comment) => {
+    return comment.stars == i;
+  })
+}
+
+function clearCommentsFilters() {
+  filteredByStarsComments.value = comments.value.data;
+}
+
+const productRating = await store.getStarsForProduct(route.params.id);
+const productRatingInProcents = parseFloat(productRating.stars) / 5 * 100;
+
+const fetchRatingStatistics = await store.getStarStatisticsForProduct(route.params.id);
+function calculateRatingStatistics() {
+  const percentageOfStars = [];
+  for (let i = 1; i <= 5; i++) {
+    percentageOfStars[i] = (fetchRatingStatistics[0][i] / productRating.amount_of_comments * 80).toPrecision(2);
+  }
+  return percentageOfStars;
+};
+const ratingStatistics = calculateRatingStatistics();
+
+const getMoreCommentsLink = ref(comments.value.next_page_url);
+async function getMoreComments() {
+  const response = await fetch(getMoreCommentsLink.value);
+  const json = await response.json();
+  for (let i = 0; i < json.comments.data.length; i++) {
+    comments.value.data.push(json.comments.data[i]);
+  }
+  getMoreCommentsLink.value = json.comments.next_page_url;
+}
+
+
 const scaledUpImg = ref('');
 const zoomInMore = ref(false);
 const showStatisticOfRating = ref(false);
-const closeStatisticRating = ref(false);
-
-function openStatistics() {
-  showStatisticOfRating.value = true;
-}
 
 const showDescription = ref(true);
 const showDelivery = ref(false);
@@ -124,6 +125,9 @@ function showAnotherTab(tabToSwitchTo) {
     return;
   }
 }
+
+const clearCommentsFilterHover = ref(false);
+const ratingFilterHover = ref(false);
 </script>
 
 <template>
@@ -163,8 +167,8 @@ function showAnotherTab(tabToSwitchTo) {
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
       <div class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex">
         <span>${{ product.price }}0</span>
-        <starsComponent :stars="avgStarsProcent" />
-        <span>({{ rating.amount_of_comments }})</span>
+        <starsComponent :stars="productRatingInProcents" />
+        <span>({{ productRating.amount_of_comments }})</span>
       </div>
 
       <span class="">Options:
@@ -206,42 +210,60 @@ function showAnotherTab(tabToSwitchTo) {
     </div>
   </div>
 
-  <div class="mt-20 mb-5 flex flex-col w-full" @click="closeStatisticRating = !closeStatisticRating">
+  <div class="mt-20 mb-5 flex flex-col w-full">
     <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
       <span class="font-semibold">Comments:</span>
-      <button class="flex items-center cursor-pointer relative" @click="openStatistics">
-        <starsComponent :stars="avgStarsProcent" />
-        <span class="ml-2">{{ rating.amount_of_comments }} Reviews</span>
+      <button class="flex items-center cursor-pointer relative" @click="showStatisticOfRating = !showStatisticOfRating">
+        <starsComponent :stars="productRatingInProcents" />
+        <span class="mx-2">{{ productRating.amount_of_comments }} Reviews</span>
+        <arrowToggleComponent :showContext="showStatisticOfRating" />
 
-        <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[250px] w-[400px]"
-          v-if="showStatisticOfRating && closeStatisticRating">
+        <!-- Pop-out menu with statistic of ratings -->
+        <div class="fixed top-0 left-0 w-full h-full" v-if="showStatisticOfRating" />
+        <!-- ^ -->
+        <!-- | -->
+        <!--  - Is here that it could cover all screen, that when you click anywhere the pop-out menu would close -->
+        <div class=" absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[270px] w-[400px] z-50"
+          v-if="showStatisticOfRating">
 
           <span class="font-semibold">
             <font-awesome-icon :icon="['fas', 'star']" aria-hidden="true" class="text-amber-300" />
-            {{ Number(rating.stars).toPrecision(3) }}
+            {{ Number(productRating.stars).toPrecision(3) }}
           </span>
-          <!-- Pop-out menu with statistic of ratings -->
-          <div v-for="i in 5" class="star-statistics my-3 relative flex" @click="filterCommentsByStars(i)">
-            <div class="w-[65%] bg-slate-200 w-full h-[20px] absolute top-0 right-[0px] rounded" />
-            <div class="bg-amber-300 h-[20px] star-procent absolute top-0 left-[35%] rounded" />
+
+          <div v-for="i in 5" class="star-statistics my-3 relative flex py-[1%] px-2 rounded-sm"
+            @click="filterCommentsByStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i }">
+            <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
+            <div class="bg-amber-300 h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded" />
             <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
         </div>
+      </button>
+      <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters"
+        @mouseover="clearCommentsFilterHover = true" @mouseleave="clearCommentsFilterHover = false"
+        class="mr-auto underline-animation" :class="{ 'underline-animation-line-move': clearCommentsFilterHover }">
+        Clear filters
       </button>
     </div>
 
     <div v-for="comment in filteredByStarsComments" :key="comment.id" class="my-2">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
     </div>
-    <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters" class="mr-auto">Clear
-      Filters</button>
-    <button v-if="getMoreCommentsLink != null" @click="getMoreComments" class="mr-auto">Load more</button>
+
+    <button v-if="getMoreCommentsLink != null" @click="getMoreComments"
+      class="mx-auto mt-6 py-1 px-4 border-[1px] rounded-lg">
+      Show more comments
+    </button>
   </div>
 </template>
 
 <style scoped>
+.star-statistics:hover {
+  background-color: rgb(254, 202, 202, 0.5);
+}
+
 .star-statistics:nth-child(2) {
   .star-procent {
     width: v-bind(ratingStatistics[1] + '%');

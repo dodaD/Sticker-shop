@@ -33,8 +33,7 @@
         <button class="w-[22px] h-[22px] rounded-full ml-2"
           :class="{ 'text-white': hover, 'bg-neutral-950': hover, 'bg-neutral-200': !hover }"
           @click="showDropDownSort = !showDropDownSort">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showDropDownSort" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showDropDownSort" />
+          <arrowToggleComponent :showContext="showDropDownSort" />
         </button>
       </div>
 

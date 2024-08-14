@@ -57,9 +57,8 @@
     <div class="py-2">
       <div class="flex items-center justify-between">
         <span class="font-semibold my-2">Type</span>
-        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showTypes = !showTypes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showTypes" class="text-white translate-y-[-1px]" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showTypes" class="text-white translate-y-[-1px]" />
+        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full text-white" @click="showTypes = !showTypes">
+          <arrowToggleComponent :showContext="showTypes" />
         </button>
       </div>
 
@@ -75,9 +74,8 @@
     <div class="py-2 border-solid border-t border-indigo-500">
       <div class="flex items-center justify-between">
         <span class="font-semibold my-2">Size</span>
-        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showSizes = !showSizes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showSizes" class="text-white translate-y-[-1px]" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showSizes" class="text-white translate-y-[-1px]" />
+        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full text-white" @click="showSizes = !showSizes">
+          <arrowToggleComponent :showContext="showSizes" />
         </button>
       </div>
 
@@ -93,9 +91,8 @@
     <div class="py-2 border-solid border-t border-indigo-500">
       <div class="flex items-center justify-between">
         <span class="font-semibold my-2">Theme</span>
-        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full" @click="showThemes = !showThemes">
-          <font-awesome-icon :icon="['fas', 'chevron-down']" v-if="showThemes" class="text-white translate-y-[-1px]" />
-          <font-awesome-icon :icon="['fas', 'chevron-up']" v-if="!showThemes" class="text-white translate-y-[-1px]" />
+        <button class="w-[22px] h-[22px] bg-neutral-950 rounded-full text-white" @click="showThemes = !showThemes">
+          <arrowToggleComponent :showContext="showThemes" />
         </button>
       </div>
 
@@ -186,7 +183,7 @@ function closeFilters() {
 }
 
 .custom-check:checked {
-  background-color:black;
+  background-color: black;
   border: 1px solid black;
 }
 
