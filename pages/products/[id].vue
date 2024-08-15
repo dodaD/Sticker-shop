@@ -1,6 +1,7 @@
 <script setup>
 import { computed, watch } from "vue";
 import { useProductsStore } from "@/stores/products";
+import { useCommentsStore } from "@/stores/comments";
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, Scrollbar } from 'swiper/modules';
@@ -9,25 +10,25 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
-const store = useProductsStore();
-if (store.response.products === undefined) {
-  store.response = await store.getProducts();
+const productStore = useProductsStore();
+const commentsStore = useCommentsStore();
+if (productStore.response.products === undefined) {
+  productStore.response = await productStore.getProducts();
 }
 
 const route = useRoute();
 const product = computed(() => {
-  if (store.response.products !== undefined) {
-    return store.response.products.find((item) => item.id == route.params.id);
+  if (productStore.response.products !== undefined) {
+    return productStore.response.products.find((item) => item.id == route.params.id);
   }
 });
-
 
 const slider = ref(null);
 const onSwiper = (swiper) => {
   slider.value = swiper;
 };
 
-const additionalPictures = await store.getAdditionalPicturesForProduct(route.params.id);
+const additionalPictures = await productStore.getAdditionalPicturesForProduct(route.params.id);
 const picturesForThisProduct = additionalPictures.additional_pictures;
 const optionsForThisProduct = additionalPictures.optional_pictures;
 
@@ -55,26 +56,53 @@ function changeOption(option) {
   activeOption.value = optionsForThisProduct[currentOption];
 }
 
-const fetchComments = await store.getCommentsForProduct(route.params.id);
+const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
 
 const filteredByStarsComments = ref(comments.value.data);
 const currentStarFilter = ref(null);
-function filterCommentsByStars(i) {
-  currentStarFilter.value = i;
-  filteredByStarsComments.value = comments.value.data.filter((comment) => {
-    return comment.stars == i;
-  })
+
+const getMoreCommentsLink = ref(comments.value.next_page_url);
+const getMoreFilteredCommentsLink = ref(null);
+
+async function getMoreComments() {
+  if (filteredByStarsComments != comments.data) {
+    const response = await fetch(getMoreFilteredCommentsLink.value);
+    const json = await response.json();
+    for (let i = 0; i < json.comments.data.length; i++) {
+      filteredByStarsComments.value.push(json.comments.data[i]);
+    }
+    getMoreFilteredCommentsLink.value = json.comments.next_page_url;
+    return;
+  }
+
+  const response = await fetch(getMoreCommentsLink.value);
+  const json = await response.json();
+  for (let i = 0; i < json.comments.data.length; i++) {
+    comments.value.data.push(json.comments.data[i]);
+  }
+  getMoreCommentsLink.value = json.comments.next_page_url;
+}
+
+async function filterCommentsByStars(starFilter) {
+  currentStarFilter.value = starFilter;
+  const json = await commentsStore.getCommentsWithSpecificStars(route.params.id, starFilter);
+  filteredByStarsComments.value = json.comments.data;
+  getMoreFilteredCommentsLink.value = json.comments.next_page_url
 }
 
 function clearCommentsFilters() {
   filteredByStarsComments.value = comments.value.data;
+  currentStarFilter.value = null;
+  getMoreFilteredCommentsLink.value = null;
 }
 
-const productRating = await store.getStarsForProduct(route.params.id);
+const clearCommentsFilterHover = ref(false);
+
+const productRating = await commentsStore.getStarsForProduct(route.params.id);
 const productRatingInProcents = parseFloat(productRating.stars) / 5 * 100;
 
-const fetchRatingStatistics = await store.getStarStatisticsForProduct(route.params.id);
+const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(route.params.id);
 function calculateRatingStatistics() {
   const percentageOfStars = [];
   for (let i = 1; i <= 5; i++) {
@@ -84,55 +112,23 @@ function calculateRatingStatistics() {
 };
 const ratingStatistics = calculateRatingStatistics();
 
-const getMoreCommentsLink = ref(comments.value.next_page_url);
-async function getMoreComments() {
-  const response = await fetch(getMoreCommentsLink.value);
-  const json = await response.json();
-  for (let i = 0; i < json.comments.data.length; i++) {
-    comments.value.data.push(json.comments.data[i]);
-  }
-  getMoreCommentsLink.value = json.comments.next_page_url;
-}
-
-
 const scaledUpImg = ref('');
 const zoomInMore = ref(false);
+const zoomedInIsOpened = ref(false);
 const showStatisticOfRating = ref(false);
 
-const showDescription = ref(true);
-const showDelivery = ref(false);
-const showReturn = ref(false);
-
-function showAnotherTab(tabToSwitchTo) {
-  if (tabToSwitchTo == "description") {
-    showDescription.value = true;
-    showDelivery.value = false;
-    showReturn.value = false;
-    return;
-  }
-
-  if (tabToSwitchTo == "delivery") {
-    showDescription.value = false;
-    showDelivery.value = true;
-    showReturn.value = false;
-    return;
-  }
-
-  if (tabToSwitchTo == "return") {
-    showDescription.value = false;
-    showDelivery.value = false;
-    showReturn.value = true;
-    return;
-  }
+function openZoomIn(pictureImgURL) {
+  scaledUpImg.value = pictureImgURL;
+  zoomedInIsOpened.value = true;
 }
 
-const clearCommentsFilterHover = ref(false);
+const currentTab = ref("description");
 const ratingFilterHover = ref(false);
 </script>
 
 <template>
   <div class="flex lg:flex-row flex-col"
-    v-if="store.response.products !== undefined && picturesForThisProduct !== undefined">
+    v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
     <div class="flex flex-col xl:flex-row">
       <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit translate-y-[740px]
@@ -147,20 +143,21 @@ const ratingFilterHover = ref(false);
         :slides-per-view="1" @swiper="onSwiper" :scrollbar="{ draggable: true }" @slideChange="onSlideChange">
         <swiper-slide v-for="picture in picturesForThisProduct">
           <img :src="'/images/' + picture.imgURL" class="w-[100%] h-[100%] rounded-lg cursor-zoom-in"
-            :class="{ hidden: activePicture.id !== picture.id }" @click="scaledUpImg = picture.imgURL" />
+            :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL)" />
         </swiper-slide>
       </swiper> <!-- Small Pictures -->
     </div>
 
-    <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="scaledUpImg != ''"
-      @click="scaledUpImg = ''" />
+    <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
+      @click="zoomedInIsOpened = false" />
     <div class=" fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
-      cursor-pointer" v-if="scaledUpImg != ''" @click="zoomInMore = !zoomInMore">
-      <button @click="scaledUpImg = ''" class="absolute top-[2%] right-[2%] text-3xl">
+      cursor-pointer" v-if="zoomedInIsOpened">
+      <button @click="zoomedInIsOpened = false" class="absolute top-[2%] right-[2%] text-3xl">
         <font-awesome-icon :icon="['fas', 'xmark']" />
       </button>
 
-      <img :src="'/images/' + scaledUpImg" class="h-[100%]" :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore }" />
+      <img :src="'/images/' + scaledUpImg" @click="zoomInMore = !zoomInMore" class="h-[100%]"
+        :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore, 'cursor-zoom-in': !zoomInMore, 'cursor-zoom-out': zoomInMore }" />
     </div> <!-- Zoomed In Picture -->
 
     <div class="w-[100%] xl:max-w-[450px]"> <!-- Product Description; Section Right From Product -->
@@ -183,25 +180,25 @@ const ratingFilterHover = ref(false);
 
       <div class="mt-4"> <!-- Additional tabs -->
         <button class="py-1 px-2 border-[1px] rounded-full mr-4"
-          :class="{ 'border-black': showDescription, 'border-white': !showDescription }"
-          @click="showAnotherTab('description')">Description</button>
+          :class="{ 'border-black': currentTab == 'description', 'border-white': currentTab != 'description' }"
+          @click="currentTab = 'description'">Description</button>
 
         <button class="py-1 px-2 border-[1px] rounded-full mr-4"
-          :class="{ 'border-black': showDelivery, 'border-white': !showDelivery }"
-          @click="showAnotherTab('delivery')">Delivery</button>
+          :class="{ 'border-black': currentTab == 'delivery', 'border-white': currentTab != 'delivery' }"
+          @click="currentTab = 'delivery'">Delivery</button>
 
         <button class="py-1 px-2 border-[1px] rounded-full"
-          :class="{ 'border-black': showReturn, 'border-white': !showReturn }"
-          @click="showAnotherTab('return')">Return</button>
+          :class="{ 'border-black': currentTab == 'return', 'border-white': currentTab != 'return' }"
+          @click="currentTab = 'return'">Return</button>
 
         <div class="mt-2 min-h-[50px] max-w-[100%]">
-          <p v-if="showDescription">
+          <p v-if="currentTab == 'description'">
             {{ product.description }}
           </p>
-          <p v-if="showDelivery">
+          <p v-if="currentTab == 'delivery'">
             Here is delivery options. You pay for it; Is not included in order.
           </p>
-          <p v-if="showReturn">
+          <p v-if="currentTab == 'return'">
             Returns accepted if stickers in perfect condition and none is missing. You must pay for shipping them back
             and won't get any refund on shipping cost.
           </p>
@@ -252,8 +249,9 @@ const ratingFilterHover = ref(false);
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
     </div>
 
-    <button v-if="getMoreCommentsLink != null" @click="getMoreComments"
-      class="mx-auto mt-6 py-1 px-4 border-[1px] rounded-lg">
+    <button
+      v-if="getMoreCommentsLink != null && filteredByStarsComments == comments.data || filteredByStarsComments != comments.data && getMoreFilteredCommentsLink != null"
+      @click="getMoreComments" class="mx-auto mt-6 py-1 px-4 border-[1px] rounded-lg">
       Show more comments
     </button>
   </div>
