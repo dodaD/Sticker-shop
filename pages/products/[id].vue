@@ -122,6 +122,35 @@ function openZoomIn(pictureImgURL) {
   zoomedInIsOpened.value = true;
 }
 
+const isMoreToSwipe = computed(() => {
+  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  if (slideIndex == picturesForThisProduct.length - 1) {
+    return false;
+  }
+  return true;
+});
+
+const isFirstOne = computed(() => {
+  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  if (slideIndex == 0) {
+    return true;
+  }
+  return false;
+});
+
+function swipePictures(direction) {
+  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+
+  if (direction == 'forward') {
+    slider.value.slideTo(slideIndex + 1);
+    scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
+    return;
+  }
+
+  slider.value.slideTo(slideIndex - 1);
+  scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
+}
+
 const currentTab = ref("description");
 const ratingFilterHover = ref(false);
 </script>
@@ -158,6 +187,13 @@ const ratingFilterHover = ref(false);
 
       <img :src="'/images/' + scaledUpImg" @click="zoomInMore = !zoomInMore" class="h-[100%]"
         :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore, 'cursor-zoom-in': !zoomInMore, 'cursor-zoom-out': zoomInMore }" />
+      <button v-if="isMoreToSwipe" class="rounded-full h-[40px] w-[40px]" @click="swipePictures('forward')">
+        <font-awesome-icon :icon="['fas', 'chevron-right']" />
+      </button>
+
+      <button v-if="!isFirstOne" class="rounded-full h-[40px] w-[40px]" @click="swipePictures('back')">
+        <font-awesome-icon :icon="['fas', 'chevron-left']" />
+      </button>
     </div> <!-- Zoomed In Picture -->
 
     <div class="w-[100%] xl:max-w-[450px]"> <!-- Product Description; Section Right From Product -->
