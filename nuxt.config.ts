@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     "@fortawesome/fontawesome-svg-core/styles.css",
   ],
   modules: [
-    // ...
     "@pinia/nuxt",
   ],
   postcss: {
@@ -12,6 +11,11 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+  router: {
+    options: {
+      scrollBehaviorType: 'smooth'
+    }
   },
   build: {
     transpile: ["@fortawesome/vue-fontawesome"],

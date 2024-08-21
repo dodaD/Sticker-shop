@@ -116,43 +116,73 @@ const scaledUpImg = ref('');
 const zoomInMore = ref(false);
 const zoomedInIsOpened = ref(false);
 const showStatisticOfRating = ref(false);
+const showFillingAnimation = ref(false);
+
+watch(showStatisticOfRating, (status) => {
+  if (status) {
+    setTimeout(() => {
+      showFillingAnimation.value = true;
+    }, 100);
+    return;
+  }
+  showFillingAnimation.value = false;
+})
+
 
 function openZoomIn(pictureImgURL) {
   scaledUpImg.value = pictureImgURL;
   zoomedInIsOpened.value = true;
 }
 
-const isMoreToSwipe = computed(() => {
-  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
-  if (slideIndex == picturesForThisProduct.length - 1) {
-    return false;
-  }
-  return true;
-});
-
-const isFirstOne = computed(() => {
-  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
-  if (slideIndex == 0) {
-    return true;
-  }
-  return false;
+const currentSlide = computed(() => {
+  const index = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  return index + 1;
 });
 
 function swipePictures(direction) {
-  const slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  let slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
 
   if (direction == 'forward') {
+    if (slideIndex + 1 == picturesForThisProduct.length) {
+      slideIndex = -1;
+    }
     slider.value.slideTo(slideIndex + 1);
     scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
     return;
   }
-
+  if (slideIndex == 0) {
+    slideIndex = picturesForThisProduct.length;
+  }
   slider.value.slideTo(slideIndex - 1);
   scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
 }
 
+const hover = ref(false);
+const closeButtonAnimation = ref(false);
+
+function closeZoomInHoverAnimation() {
+  if (hover.value == true) {
+    return;
+  }
+  closeButtonAnimation.value = true;
+  hover.value = true;
+  setTimeout(() => {
+    closeButtonAnimation.value = false;
+  }, 300);
+}
+
+const reverseCloseButtonAnimation = ref(false);
+function closeZoomInHoverReverseAnimation() {
+  reverseCloseButtonAnimation.value = true;
+  hover.value = false;
+  setTimeout(() => {
+    reverseCloseButtonAnimation.value = false;
+  }, 300);
+}
+
 const currentTab = ref("description");
 const ratingFilterHover = ref(false);
+
 </script>
 
 <template>
@@ -179,30 +209,34 @@ const ratingFilterHover = ref(false);
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
       @click="zoomedInIsOpened = false" />
-    <div class=" fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+    <div class="fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
       cursor-pointer" v-if="zoomedInIsOpened">
-      <button @click="zoomedInIsOpened = false" class="absolute top-[2%] right-[2%] text-3xl">
-        <font-awesome-icon :icon="['fas', 'xmark']" />
+      <button @click="zoomedInIsOpened = false"
+        class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
+        <font-awesome-icon :icon="['fas', 'xmark']" @mouseover="closeZoomInHoverAnimation"
+          @mouseleave="closeZoomInHoverReverseAnimation"
+          :class="{ 'fa-spin': closeButtonAnimation || reverseCloseButtonAnimation, 'fa-spin-reverse': reverseCloseButtonAnimation }" />
       </button>
 
       <img :src="'/images/' + scaledUpImg" @click="zoomInMore = !zoomInMore" class="h-[100%]"
         :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore, 'cursor-zoom-in': !zoomInMore, 'cursor-zoom-out': zoomInMore }" />
-      <button v-if="isMoreToSwipe" class="rounded-full h-[40px] w-[40px]" @click="swipePictures('forward')">
-        <font-awesome-icon :icon="['fas', 'chevron-right']" />
-      </button>
 
-      <button v-if="!isFirstOne" class="rounded-full h-[40px] w-[40px]" @click="swipePictures('back')">
-        <font-awesome-icon :icon="['fas', 'chevron-left']" />
+      <button
+        class="rounded-full px-12 py-2 text-md my-4 bg-white h-fit fixed bottom-[20px] border-[1px] border-slate-300">
+        <font-awesome-icon :icon="['fas', 'chevron-left']" @click="swipePictures('back')" />
+        <span class="mx-4">{{ currentSlide }}/{{ picturesForThisProduct.length }}</span>
+        <font-awesome-icon :icon="['fas', 'chevron-right']" @click="swipePictures('forward')" />
       </button>
     </div> <!-- Zoomed In Picture -->
 
     <div class="w-[100%] xl:max-w-[450px]"> <!-- Product Description; Section Right From Product -->
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
-      <div class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex">
+      <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
+        :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
         <span>${{ product.price }}0</span>
         <starsComponent :stars="productRatingInProcents" />
         <span>({{ productRating.amount_of_comments }})</span>
-      </div>
+      </NuxtLink>
 
       <span class="">Options:
         <span class="">{{ activeOption.option_name }}</span>
@@ -246,8 +280,9 @@ const ratingFilterHover = ref(false);
   <div class="mt-20 mb-5 flex flex-col w-full">
     <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
-      <span class="font-semibold">Comments:</span>
-      <button class="flex items-center cursor-pointer relative" @click="showStatisticOfRating = !showStatisticOfRating">
+      <span class="font-semibold" id="comments">Comments:</span>
+      <button class="flex items-center cursor-pointer relative mr-auto"
+        @click="showStatisticOfRating = !showStatisticOfRating">
         <starsComponent :stars="productRatingInProcents" />
         <span class="mx-2">{{ productRating.amount_of_comments }} Reviews</span>
         <arrowToggleComponent :showContext="showStatisticOfRating" />
@@ -268,7 +303,11 @@ const ratingFilterHover = ref(false);
           <div v-for="i in 5" class="star-statistics my-3 relative flex py-[1%] px-2 rounded-sm"
             @click="filterCommentsByStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i }">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
-            <div class="bg-amber-300 h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded" />
+            <div v-if="showStatisticOfRating"
+              class="h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded">
+              <div class="bg-amber-300 h-full rounded"
+                :class="{ 'filling-color-animation': showFillingAnimation, 'w-[0]': !showFillingAnimation }" />
+            </div>
             <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
@@ -277,7 +316,7 @@ const ratingFilterHover = ref(false);
       <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters"
         @mouseover="clearCommentsFilterHover = true" @mouseleave="clearCommentsFilterHover = false"
         class="mr-auto underline-animation" :class="{ 'underline-animation-line-move': clearCommentsFilterHover }">
-        Clear filters
+        Clear filters (Showing only: {{ currentStarFilter }} star comments)
       </button>
     </div>
 
@@ -326,5 +365,10 @@ const ratingFilterHover = ref(false);
   .star-procent {
     width: v-bind(ratingStatistics[5] + '%');
   }
+}
+
+.filling-color-animation {
+  width: 100%;
+  transition: width 0.5s ease-in-out;
 }
 </style>
