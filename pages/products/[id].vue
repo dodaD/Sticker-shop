@@ -61,6 +61,18 @@ const comments = ref(fetchComments.comments);
 
 const filteredByStarsComments = ref(comments.value.data);
 const currentStarFilter = ref(null);
+const playCommentsBounceAnimation = ref(false);
+
+watch(currentStarFilter, (stars) => {
+  if (stars !== null) {
+    playCommentsBounceAnimation.value = true;
+    setTimeout(() => {
+      playCommentsBounceAnimation.value = false;
+    }, 990);
+    return;
+  }
+  playCommentsBounceAnimation.value = false;
+});
 
 const getMoreCommentsLink = ref(comments.value.next_page_url);
 const getMoreFilteredCommentsLink = ref(null);
@@ -126,8 +138,7 @@ watch(showStatisticOfRating, (status) => {
     return;
   }
   showFillingAnimation.value = false;
-})
-
+});
 
 function openZoomIn(pictureImgURL) {
   scaledUpImg.value = pictureImgURL;
@@ -320,7 +331,8 @@ const ratingFilterHover = ref(false);
       </button>
     </div>
 
-    <div v-for="comment in filteredByStarsComments" :key="comment.id" class="my-2">
+    <div v-for="comment in filteredByStarsComments" :key="comment.id" class="my-2"
+      :class="{ 'bounce-in': playCommentsBounceAnimation }">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
     </div>
 
@@ -370,5 +382,29 @@ const ratingFilterHover = ref(false);
 .filling-color-animation {
   width: 100%;
   transition: width 0.5s ease-in-out;
+}
+
+.bounce-in {
+  animation: bounce-in 1s ease infinite;
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(.3);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
