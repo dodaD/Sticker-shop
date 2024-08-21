@@ -71,7 +71,6 @@ watch(currentStarFilter, (stars) => {
     }, 990);
     return;
   }
-  playCommentsBounceAnimation.value = false;
 });
 
 const getMoreCommentsLink = ref(comments.value.next_page_url);
@@ -107,6 +106,10 @@ function clearCommentsFilters() {
   filteredByStarsComments.value = comments.value.data;
   currentStarFilter.value = null;
   getMoreFilteredCommentsLink.value = null;
+  playCommentsBounceAnimation.value = true;
+  setTimeout(() => {
+    playCommentsBounceAnimation.value = false;
+  }, 990);
 }
 
 const clearCommentsFilterHover = ref(false);
