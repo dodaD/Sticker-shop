@@ -35,8 +35,21 @@ const optionsForThisProduct = additionalPictures.optional_pictures;
 const activePicture = ref(picturesForThisProduct[0]);
 const activeOption = ref(optionsForThisProduct[0]);
 
-function changeActiveSlide(picture) {
-  const index = picturesForThisProduct.findIndex((item) => item.id == picture);
+function changeActiveSlide(pictureId, direction) {
+  let index = picturesForThisProduct.findIndex((item) => item.id == pictureId);
+  if (direction == 'right') {
+    if (index == picturesForThisProduct.length - 1) {
+      index = 0;
+    } else {
+      index = index + 1;
+    }
+  } else if (direction == 'left') {
+    if (index == 0) {
+      index = picturesForThisProduct.length - 1;
+    } else {
+      index = index - 1;
+    }
+  }
   slider.value.slideTo(index);
   activePicture.value = picturesForThisProduct[index];
 }
@@ -196,7 +209,21 @@ function closeZoomInHoverReverseAnimation() {
 
 const currentTab = ref("description");
 const ratingFilterHover = ref(false);
+const showRightArrow = ref(false);
+const showCustomCursor = ref(false);
 
+function moveCursor(direction) {
+  if (direction == 'right') {
+    showRightArrow.value = true;
+  } else {
+    showRightArrow.value = false;
+  }
+  showCustomCursor.value = true;
+  const customCursor = document.querySelector('.cursor');
+  customCursor.style.top = `${event.clientY}px`;
+  customCursor.style.left = `${event.clientX + window.scrollX}px`;
+  customCursor.style.opacity = 1;
+}
 </script>
 
 <template>
@@ -209,16 +236,34 @@ const ratingFilterHover = ref(false);
         <img :src="'/images/' + picture.imgURL" v-for="picture in picturesForThisProduct"
           @click="changeActiveSlide(picture.id)" class="h-[100px] w-fit rounded-lg mr-2 cursor-pointer"
           :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id, }" />
-      </div> <!-- Big Picture -->
+      </div> <!-- Small Picture -->
 
-      <swiper
-        class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] md:!px-[40px] lg:translate-y-[-100px] xl:translate-y-[0px]"
+      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
         :slides-per-view="1" @swiper="onSwiper" :scrollbar="{ draggable: true }" @slideChange="onSlideChange">
-        <swiper-slide v-for="picture in picturesForThisProduct">
-          <img :src="'/images/' + picture.imgURL" class="w-[100%] h-[100%] rounded-lg cursor-zoom-in"
-            :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL)" />
+        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
+          <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
+            :class="{ hidden: activePicture.id !== picture.id }" />
+
+          <div class="w-[50%] h-full absolute left-[0px] top-0 custom-cursor"
+            @click="changeActiveSlide(picture.id, 'left')" @mousemove="moveCursor('left')"
+            @mouseleave="showCustomCursor = false" />
+          <div class="w-[50%] h-full absolute right-[0px] top-0 custom-cursor"
+            @click="changeActiveSlide(picture.id, 'right')" @mousemove="moveCursor('right')"
+            @mouseleave="showCustomCursor = false" />
+          <!-- ^ -->
+          <!--  \-  Dividing of screen for changing picture -->
+          <button class="absolute bottom-[40px] right-[40px]" @click="openZoomIn(picture.imgURL)">Zoom In</button>
         </swiper-slide>
-      </swiper> <!-- Small Pictures -->
+      </swiper> <!-- Big Pictures -->
+    </div>
+
+    <!--  /-  Custom  cursor done by script -->
+    <!-- ▽ -->
+    <div
+      class="bg-white rounded-full h-[40px] w-[40px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
+      v-if="showCustomCursor">
+      <font-awesome-icon :icon="['fas', 'chevron-right']" v-if="showRightArrow" />
+      <font-awesome-icon :icon="['fas', 'chevron-left']" v-if="!showRightArrow" />
     </div>
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
@@ -243,7 +288,7 @@ const ratingFilterHover = ref(false);
       </button>
     </div> <!-- Zoomed In Picture -->
 
-    <div class="w-[100%] xl:max-w-[450px]"> <!-- Product Description; Section Right From Product -->
+    <div class="w-[100%] xl:max-w-[450px] lg:ml-[10px]"> <!-- Product Description; Section Right From Product -->
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
       <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
         :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
@@ -409,5 +454,9 @@ const ratingFilterHover = ref(false);
   100% {
     transform: scale(1);
   }
+}
+
+.custom-cursor {
+  cursor: none;
 }
 </style>
