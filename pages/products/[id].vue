@@ -252,7 +252,11 @@ function moveCursor(direction) {
             @mouseleave="showCustomCursor = false" />
           <!-- ^ -->
           <!--  \-  Dividing of screen for changing picture -->
-          <button class="absolute bottom-[40px] right-[40px]" @click="openZoomIn(picture.imgURL)">Zoom In</button>
+          <button
+            class="absolute bottom-[40px] right-[40px] bg-white rounded-full border-[1px] border-gray-400 h-[50px] w-[50px]"
+            @click="openZoomIn(picture.imgURL)">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+          </button>
         </swiper-slide>
       </swiper> <!-- Big Pictures -->
     </div>
@@ -260,7 +264,7 @@ function moveCursor(direction) {
     <!--  /-  Custom  cursor done by script -->
     <!-- ▽ -->
     <div
-      class="bg-white rounded-full h-[40px] w-[40px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
+      class="bg-white rounded-full h-[60px] w-[60px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
       v-if="showCustomCursor">
       <font-awesome-icon :icon="['fas', 'chevron-right']" v-if="showRightArrow" />
       <font-awesome-icon :icon="['fas', 'chevron-left']" v-if="!showRightArrow" />
