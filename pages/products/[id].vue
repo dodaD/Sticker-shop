@@ -141,6 +141,7 @@ function calculateRatingStatistics() {
 const ratingStatistics = calculateRatingStatistics();
 
 const scaledUpImg = ref('');
+const scaledUpId = ref(null);
 const zoomInMore = ref(false);
 const zoomedInIsOpened = ref(false);
 const showStatisticOfRating = ref(false);
@@ -156,18 +157,19 @@ watch(showStatisticOfRating, (status) => {
   showFillingAnimation.value = false;
 });
 
-function openZoomIn(pictureImgURL) {
+function openZoomIn(pictureImgURL, pictureId) {
   scaledUpImg.value = pictureImgURL;
   zoomedInIsOpened.value = true;
+  scaledUpId.value = pictureId;
 }
 
 const currentSlide = computed(() => {
-  const index = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  const index = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
   return index + 1;
 });
 
 function swipePictures(direction) {
-  let slideIndex = picturesForThisProduct.findIndex((item) => item.imgURL == scaledUpImg.value);
+  let slideIndex = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
 
   if (direction == 'forward') {
     if (slideIndex + 1 == picturesForThisProduct.length) {
@@ -175,6 +177,7 @@ function swipePictures(direction) {
     }
     slider.value.slideTo(slideIndex + 1);
     scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
+    scaledUpId.value = picturesForThisProduct[slideIndex + 1].id;
     return;
   }
   if (slideIndex == 0) {
@@ -182,6 +185,7 @@ function swipePictures(direction) {
   }
   slider.value.slideTo(slideIndex - 1);
   scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
+  scaledUpId.value = picturesForThisProduct[slideIndex - 1].id;
 }
 
 const hover = ref(false);
@@ -254,7 +258,7 @@ function moveCursor(direction) {
           <!--  \-  Dividing of screen for changing picture -->
           <button
             class="absolute bottom-[40px] right-[40px] bg-white rounded-full border-[1px] border-gray-400 h-[50px] w-[50px]"
-            @click="openZoomIn(picture.imgURL)">
+            @click="openZoomIn(picture.imgURL, picture.id)">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </button>
         </swiper-slide>
@@ -265,7 +269,7 @@ function moveCursor(direction) {
     <!-- ▽ -->
     <div
       class="bg-white rounded-full h-[60px] w-[60px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
-      v-if="showCustomCursor">
+      :class="{ 'hidden': !showCustomCursor, 'block': showCustomCursor }">
       <font-awesome-icon :icon="['fas', 'chevron-right']" v-if="showRightArrow" />
       <font-awesome-icon :icon="['fas', 'chevron-left']" v-if="!showRightArrow" />
     </div>
