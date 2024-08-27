@@ -15,5 +15,11 @@ export const useProductsStore = defineStore("products", () => {
     return json;
   }
 
-  return { response, getProducts, getAdditionalPicturesForProduct };
+  async function getYouMightLikeProducts(product_id) {
+    const response = await fetch('http://localhost/api/products/get_you_might_like/' + product_id);
+    const json = await response.json();
+    return json;
+  }
+
+  return { response, getProducts, getAdditionalPicturesForProduct, getYouMightLikeProducts };
 });

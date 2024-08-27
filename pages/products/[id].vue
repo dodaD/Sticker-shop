@@ -4,11 +4,13 @@ import { useProductsStore } from "@/stores/products";
 import { useCommentsStore } from "@/stores/comments";
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Navigation, Pagination, Scrollbar } from 'swiper/modules';
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
+
+const modules = [Navigation, Pagination, Scrollbar, A11y];
 
 const productStore = useProductsStore();
 const commentsStore = useCommentsStore();
@@ -27,6 +29,33 @@ const slider = ref(null);
 const onSwiper = (swiper) => {
   slider.value = swiper;
 };
+
+const youMightLikeProducts = await productStore.getYouMightLikeProducts(route.params.id);
+const secondSlider = ref(null);
+const onSecondSwiper = (swiper) => {
+  secondSlider.value = swiper;
+};
+
+const swiperNextSlide = () => {
+  secondSlider.value.slideNext();
+};
+const swiperPrevSlide = () => {
+  secondSlider.value.slidePrev();
+};
+
+const isNextSlide = computed(() => {
+  if (secondSlider.value == null) {
+    return false;
+  }
+  return secondSlider.value.activeIndex != 5;
+});
+
+const isPreviousSlide = computed(() => {
+  if (secondSlider.value == null) {
+    return false;
+  }
+  return secondSlider.value.activeIndex != 0;
+});
 
 const additionalPictures = await productStore.getAdditionalPicturesForProduct(route.params.id);
 const picturesForThisProduct = additionalPictures.additional_pictures;
@@ -344,6 +373,26 @@ function moveCursor(direction) {
     </div>
   </div>
 
+  <div class="text-3xl mt-[100px] mb-4">You might also like:</div>
+
+  <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="onSecondSwiper"
+    class="h-full w-full relative">
+    <swiper-slide v-for="product in youMightLikeProducts.products"
+      class="second-swiper-slide !h-[480px] !flex justify-center items-center">
+      <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
+    </swiper-slide>
+
+    <button @click="swiperPrevSlide" v-if="isPreviousSlide"
+      class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+      <font-awesome-icon :icon="['fas', 'chevron-left']" />
+    </button>
+    <button @click="swiperNextSlide" v-if="isNextSlide"
+      class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+      <font-awesome-icon :icon="['fas', 'chevron-right']" />
+    </button>
+  </swiper>
+
+
   <div class="mt-20 mb-5 flex flex-col w-full">
     <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
@@ -466,5 +515,9 @@ function moveCursor(direction) {
 
 .custom-cursor {
   cursor: none;
+}
+
+.second-swiper-slide {
+  width: fit-content;
 }
 </style>

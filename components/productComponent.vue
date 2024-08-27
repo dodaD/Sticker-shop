@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col hover:bg-stone-200/65 hover:rounded-md z-0 justify-center items-center p-[10px] translate-y-[-10px] w-fit"
+    class="flex flex-col hover:bg-stone-200/65 rounded-md z-0 justify-center items-center p-[10px] translate-y-[-10px] w-fit"
     @click="openProductProfile">
     <img v-if="img" :src="'/images/' + img" class="w-[260px] h-[370px]" />
     <span class="mx-auto"> {{ title }} </span>
