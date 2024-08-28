@@ -98,6 +98,14 @@ function changeOption(option) {
   activeOption.value = optionsForThisProduct[currentOption];
 }
 
+const isNextSlideOnSmallPictures = computed(() => {
+  return activePicture.id != picturesForThisProduct[picturesForThisProduct.length - 1].id;
+});
+
+const isPreviousSlideOnSmallPictures = computed(() => {
+  return activePicture.id != picturesForThisProduct[0].id;
+});
+
 const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
 
@@ -263,13 +271,19 @@ function moveCursor(direction) {
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex flex-col xl:flex-row">
-      <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit translate-y-[740px]
+    <div class="flex flex-col xl:flex-row relative">
+
+      <div class="relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px]">
+        <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit
         xl:translate-y-[0px]">
-        <img :src="'/images/' + picture.imgURL" v-for="picture in picturesForThisProduct"
-          @click="changeActiveSlide(picture.id)" class="h-[100px] w-fit rounded-lg mr-2 cursor-pointer"
-          :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id, }" />
-      </div> <!-- Small Picture -->
+          <img :src="'/images/' + picture.imgURL" v-for="picture in picturesForThisProduct"
+            @click="changeActiveSlide(picture.id)" class="h-[100px] w-fit rounded-lg mr-2 cursor-pointer"
+            :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id }" />
+        </div> <!-- Small Picture -->
+
+        <div class="h-full translate-x-[-20px] w-[20px] bg-white z-50 absolute left-0 custom-shading-left" />
+        <div class="h-full translate-x-[10px] w-[20px] bg-white z-50 absolute right-0 custom-shading-right" />
+      </div>
 
       <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
         :slides-per-view="1" @swiper="onSwiper" :scrollbar="{ draggable: true }" @slideChange="onSlideChange">
@@ -519,5 +533,13 @@ function moveCursor(direction) {
 
 .second-swiper-slide {
   width: fit-content;
+}
+
+.custom-shading-left {
+  box-shadow: 20px 0px 20px white;
+}
+
+.custom-shading-right {
+  box-shadow: -20px 0px 20px white;
 }
 </style>
