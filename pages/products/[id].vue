@@ -273,16 +273,17 @@ function moveCursor(direction) {
 
     <div class="flex flex-col xl:flex-row relative">
 
-      <div class="relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px]">
-        <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit
-        xl:translate-y-[0px]">
+      <div class="relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
+        <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit">
           <img :src="'/images/' + picture.imgURL" v-for="picture in picturesForThisProduct"
             @click="changeActiveSlide(picture.id)" class="h-[100px] w-fit rounded-lg mr-2 cursor-pointer"
             :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id }" />
         </div> <!-- Small Picture -->
 
-        <div class="h-full translate-x-[-20px] w-[20px] bg-white z-50 absolute left-0 custom-shading-left" />
-        <div class="h-full translate-x-[10px] w-[20px] bg-white z-50 absolute right-0 custom-shading-right" />
+        <div
+          class="h-full translate-x-[-20px] w-[20px] bg-white z-50 absolute left-0 custom-shading-left xl:h-[20px] xl:w-full xl:translate-x-0" />
+        <div
+          class="h-full translate-x-[10px] w-[20px] bg-white z-50 absolute right-0 custom-shading-right xl:h-[20px] xl:w-full xl:bottom-0 xl:translate-x-0" />
       </div>
 
       <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
