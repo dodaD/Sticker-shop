@@ -4,11 +4,9 @@ import { useProductsStore } from "@/stores/products";
 import { useCommentsStore } from "@/stores/comments";
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Navigation, Pagination, Scrollbar, A11y, Thumbs, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
+import 'swiper/css/bundle';
 
 const modules = [Navigation, Pagination, Scrollbar, A11y];
 
@@ -25,36 +23,49 @@ const product = computed(() => {
   }
 });
 
-const slider = ref(null);
-const onSwiper = (swiper) => {
-  slider.value = swiper;
-};
+const smallPictureSwiper = ref(null);
+const setSmallPicturesSwiper = new Swiper('.small-picture-swiper', {
+  spaceBetween: 20,
+  slidesPerView: 'auto',
+  centeredSlides: true,
+  loop: true,
+  slideToClickedSlide: true,
+});
+
+const bigPictureSwiper = ref(null);
+const setBigPictureSwiper = new Swiper('.big-picture-swiper', {
+  slidesPerView: 1,
+  centeredSlides: true,
+  loop: true,
+  loopedSlides: 6,
+});
+
 
 const youMightLikeProducts = await productStore.getYouMightLikeProducts(route.params.id);
-const secondSlider = ref(null);
-const onSecondSwiper = (swiper) => {
-  secondSlider.value = swiper;
+const youMightLikeSwiper = ref(null);
+const setYouMightLikeSwiper = (swiper) => {
+  youMightLikeSwiper.value = swiper;
 };
 
 const swiperNextSlide = () => {
-  secondSlider.value.slideNext();
+  youMightLikeSwiper.value.slideNext();
 };
 const swiperPrevSlide = () => {
-  secondSlider.value.slidePrev();
+  youMightLikeSwiper.value.slidePrev();
 };
 
 const isNextSlide = computed(() => {
-  if (secondSlider.value == null) {
+  if (youMightLikeSwiper.value == null) {
     return false;
   }
-  return secondSlider.value.activeIndex != 5;
+  return youMightLikeSwiper.value.activeIndex != 5;
 });
 
 const isPreviousSlide = computed(() => {
-  if (secondSlider.value == null) {
+  if (youMightLikeSwiper.value == null) {
     return false;
   }
-  return secondSlider.value.activeIndex != 0;
+  return youMightLikeSwiper.value.activeIndex != 0;
 });
 
 const additionalPictures = await productStore.getAdditionalPicturesForProduct(route.params.id);
@@ -79,13 +90,13 @@ function changeActiveSlide(pictureId, direction) {
       index = index - 1;
     }
   }
-  slider.value.slideTo(index);
+  smallPictureSwiper.value.slideTo(index);
   activePicture.value = picturesForThisProduct[index];
 }
 
 const onSlideChange = () => {
   for (let i = 0; i < picturesForThisProduct.length; i++) {
-    if (slider.value.activeIndex === i) {
+    if (smallPictureSwiper.value.activeIndex === i) {
       activePicture.value = picturesForThisProduct[i];
     }
   }
@@ -93,7 +104,7 @@ const onSlideChange = () => {
 
 function changeOption(option) {
   const optionSlide = picturesForThisProduct.findIndex((item) => item.id == option);
-  slider.value.slideTo(optionSlide);
+  smallPictureSwiper.value.slideTo(optionSlide);
   const currentOption = optionsForThisProduct.findIndex((item) => item.id == option);
   activeOption.value = optionsForThisProduct[currentOption];
 }
@@ -127,8 +138,14 @@ const getMoreCommentsLink = ref(comments.value.next_page_url);
 const getMoreFilteredCommentsLink = ref(null);
 
 async function getMoreComments() {
-  if (filteredByStarsComments != comments.data) {
-    const response = await fetch(getMoreFilteredCommentsLink.value);
+  if (currentStarFilter.value != null) {
+    let response = null;
+    if (getMoreFilteredCommentsLink.value == null) {
+      response = await commentsStore.getCommentsWithSpecificStars(currentStarFilter.value, route.params.id);
+    } else {
+      response = await fetch(getMoreFilteredCommentsLink.value);
+    }
+
     const json = await response.json();
     for (let i = 0; i < json.comments.data.length; i++) {
       filteredByStarsComments.value.push(json.comments.data[i]);
@@ -212,7 +229,7 @@ function swipePictures(direction) {
     if (slideIndex + 1 == picturesForThisProduct.length) {
       slideIndex = -1;
     }
-    slider.value.slideTo(slideIndex + 1);
+    smallPictureSwiper.value.slideTo(slideIndex + 1);
     scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
     scaledUpId.value = picturesForThisProduct[slideIndex + 1].id;
     return;
@@ -220,7 +237,7 @@ function swipePictures(direction) {
   if (slideIndex == 0) {
     slideIndex = picturesForThisProduct.length;
   }
-  slider.value.slideTo(slideIndex - 1);
+  smallPictureSwiper.value.slideTo(slideIndex - 1);
   scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
   scaledUpId.value = picturesForThisProduct[slideIndex - 1].id;
 }
@@ -273,22 +290,18 @@ function moveCursor(direction) {
 
     <div class="flex flex-col xl:flex-row relative">
 
-      <div class="relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
-        <div class="flex-row xl:flex-col overflow-scroll hidden lg:flex xl:max-h-[740px] h-fit">
-          <img :src="'/images/' + picture.imgURL" v-for="picture in picturesForThisProduct"
-            @click="changeActiveSlide(picture.id)" class="h-[100px] w-fit rounded-lg mr-2 cursor-pointer"
-            :class="{ border: activePicture.id == picture.id, 'border-sky-500': activePicture.id === picture.id }" />
-        </div> <!-- Small Picture -->
-
-        <div
-          class="h-full translate-x-[-20px] w-[20px] bg-white z-50 absolute left-0 custom-shading-left xl:h-[20px] xl:w-full xl:translate-x-0" />
-        <div
-          class="h-full translate-x-[10px] w-[20px] bg-white z-50 absolute right-0 custom-shading-right xl:h-[20px] xl:w-full xl:bottom-0 xl:translate-x-0" />
+      <div
+        class="small-picture-swiper relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
+        <div v-for="picture in picturesForThisProduct"
+          class="swiper-slide !h-[100px] !w-fit rounded-lg mr-2 cursor-pointer">
+          <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer" />
+        </div>
+        <!-- Small pictures -->
       </div>
 
-      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
-        :slides-per-view="1" @swiper="onSwiper" :scrollbar="{ draggable: true }" @slideChange="onSlideChange">
-        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
+      <div
+        class="big-picture-swiper md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]">
+        <div class="swiper-slide relative" v-for="picture in picturesForThisProduct">
           <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
             :class="{ hidden: activePicture.id !== picture.id }" />
 
@@ -305,8 +318,8 @@ function moveCursor(direction) {
             @click="openZoomIn(picture.imgURL, picture.id)">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </button>
-        </swiper-slide>
-      </swiper> <!-- Big Pictures -->
+        </div>
+      </div> <!-- Big Pictures -->
     </div>
 
     <!--  /-  Custom  cursor done by script -->
@@ -390,7 +403,7 @@ function moveCursor(direction) {
 
   <div class="text-3xl mt-[100px] mb-4">You might also like:</div>
 
-  <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="onSecondSwiper"
+  <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="setYouMightLikeSwiper"
     class="h-full w-full relative">
     <swiper-slide v-for="product in youMightLikeProducts.products"
       class="second-swiper-slide !h-[480px] !flex justify-center items-center">
@@ -537,7 +550,7 @@ function moveCursor(direction) {
 }
 
 .custom-shading-left {
-  box-shadow: 20px 0px 20px white;
+  box-shadow: 20px0px 20px white;
 }
 
 .custom-shading-right {
