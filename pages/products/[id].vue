@@ -24,22 +24,27 @@ const product = computed(() => {
 });
 
 const smallPictureSwiper = ref(null);
-const setSmallPicturesSwiper = new Swiper('.small-picture-swiper', {
-  spaceBetween: 20,
-  slidesPerView: 'auto',
-  centeredSlides: true,
-  loop: true,
-  slideToClickedSlide: true,
-});
+const setSmallPicturesSwiper = (swiper) => {
+  smallPictureSwiper.value = swiper;
+};
 
 const bigPictureSwiper = ref(null);
-const setBigPictureSwiper = new Swiper('.big-picture-swiper', {
-  slidesPerView: 1,
-  centeredSlides: true,
-  loop: true,
-  loopedSlides: 6,
-});
+const setBigPictureSwiper = (swiper) => {
+  bigPictureSwiper.value = swiper;
+};
 
+const smallPicturesDirection = computed(() => {
+  if (window == undefined) {
+    console.log('hi');
+    return;
+  }
+
+  if (window.screen.width >= 1024) {
+    return 'vertical';
+  } else {
+    return 'horizontal';
+  }
+});
 
 const youMightLikeProducts = await productStore.getYouMightLikeProducts(route.params.id);
 const youMightLikeSwiper = ref(null);
@@ -90,13 +95,13 @@ function changeActiveSlide(pictureId, direction) {
       index = index - 1;
     }
   }
-  smallPictureSwiper.value.slideTo(index);
+  bigPictureSwiper.value.slideTo(index);
   activePicture.value = picturesForThisProduct[index];
 }
 
 const onSlideChange = () => {
   for (let i = 0; i < picturesForThisProduct.length; i++) {
-    if (smallPictureSwiper.value.activeIndex === i) {
+    if (bigPictureSwiper.value.activeIndex === i) {
       activePicture.value = picturesForThisProduct[i];
     }
   }
@@ -104,7 +109,7 @@ const onSlideChange = () => {
 
 function changeOption(option) {
   const optionSlide = picturesForThisProduct.findIndex((item) => item.id == option);
-  smallPictureSwiper.value.slideTo(optionSlide);
+  bigPictureSwiper.value.slideTo(optionSlide);
   const currentOption = optionsForThisProduct.findIndex((item) => item.id == option);
   activeOption.value = optionsForThisProduct[currentOption];
 }
@@ -229,7 +234,7 @@ function swipePictures(direction) {
     if (slideIndex + 1 == picturesForThisProduct.length) {
       slideIndex = -1;
     }
-    smallPictureSwiper.value.slideTo(slideIndex + 1);
+    bigPictureSwiper.value.slideTo(slideIndex + 1);
     scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
     scaledUpId.value = picturesForThisProduct[slideIndex + 1].id;
     return;
@@ -237,7 +242,7 @@ function swipePictures(direction) {
   if (slideIndex == 0) {
     slideIndex = picturesForThisProduct.length;
   }
-  smallPictureSwiper.value.slideTo(slideIndex - 1);
+  bigPictureSwiper.value.slideTo(slideIndex - 1);
   scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
   scaledUpId.value = picturesForThisProduct[slideIndex - 1].id;
 }
@@ -290,18 +295,20 @@ function moveCursor(direction) {
 
     <div class="flex flex-col xl:flex-row relative">
 
-      <div
-        class="small-picture-swiper relative lg:flex xl:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
-        <div v-for="picture in picturesForThisProduct"
-          class="swiper-slide !h-[100px] !w-fit rounded-lg mr-2 cursor-pointer">
-          <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer" />
-        </div>
-        <!-- Small pictures -->
+      <div class="relative lg:flex lg:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
+        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
+          class=" lg:max-h-[740px] w-full" watch-slides-progress :direction="smallPicturesDirection">
+          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
+            class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer">
+            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer" />
+          </swiper-slide>
+        </swiper> <!-- Small pictures -->
       </div>
 
-      <div
-        class="big-picture-swiper md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]">
-        <div class="swiper-slide relative" v-for="picture in picturesForThisProduct">
+      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
+        :slides-per-view="1" :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper"
+        @slideChange="onSlideChange">
+        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
           <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
             :class="{ hidden: activePicture.id !== picture.id }" />
 
@@ -318,8 +325,8 @@ function moveCursor(direction) {
             @click="openZoomIn(picture.imgURL, picture.id)">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </button>
-        </div>
-      </div> <!-- Big Pictures -->
+        </swiper-slide>
+      </swiper> <!-- Big Pictures -->
     </div>
 
     <!--  /-  Custom  cursor done by script -->
