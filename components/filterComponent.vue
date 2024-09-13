@@ -1,3 +1,54 @@
+<script setup>
+import { useProductsStore } from "@/stores/products";
+import { useAppliedFiltersStore } from "@/stores/appliedFilters";
+
+const props = defineProps(['isFixed']);
+const store = useProductsStore();
+let appliedFilters = useAppliedFiltersStore();
+const showTypes = ref(true);
+const showSizes = ref(true);
+const showThemes = ref(true);
+const showFilters = ref(false);
+const showBackgroundTin = ref(false);
+
+const types = computed(() => {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    uniqueTypes.add(product.type);
+  });
+  return Array.from(uniqueTypes);
+});
+
+const sizes = computed(() => {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    uniqueTypes.add(product.size);
+  });
+  return Array.from(uniqueTypes);
+});
+
+const themes = computed(() => {
+  let uniqueTypes = new Set();
+
+  store.response.products.forEach((product) => {
+    uniqueTypes.add(product.theme);
+  });
+  return Array.from(uniqueTypes);
+});
+
+function openFilters() {
+  showFilters.value = true;
+  showBackgroundTin.value = true;
+}
+
+function closeFilters() {
+  showFilters.value = false;
+  setTimeout(() => showBackgroundTin.value = false, 299);
+}
+</script>
+
 <template>
   <div class="fixed top-0 bottom-0 left-0 w-[100%] h-[100%] bg-black/50 lg:hidden z-10" v-if="showBackgroundTin"
     @click="closeFilters" />
@@ -64,7 +115,7 @@
 
       <TransitionGroup name="type">
         <div class="py-[2px] flex items-center" v-for="filter in types" v-if="showTypes" :key="filter">
-          <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
+          <input type="checkbox" :value="filter" v-model="appliedFilters.filters.types" :id="filter"
             class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]">{{ filter }} </label>
         </div>
@@ -81,7 +132,7 @@
 
       <TransitionGroup name="size">
         <div class="py-[2px] flex items-center" v-for="filter in sizes" v-if="showSizes" :key="filter">
-          <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
+          <input type="checkbox" :value="filter" v-model="appliedFilters.filters.sizes" :id="filter"
             class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]"> {{ filter }} </label>
         </div>
@@ -98,7 +149,7 @@
 
       <TransitionGroup name="theme">
         <div class="py-[2px] flex items-center" v-for="filter in themes" :key="filter" v-if="showThemes">
-          <input type="checkbox" :value="filter" v-model="appliedFilters.filters" :id="filter"
+          <input type="checkbox" :value="filter" v-model="appliedFilters.filters.themes" :id="filter"
             class="hover:cursor-pointer custom-check" />
           <label class="pl-[5px]">{{ filter }} </label>
         </div>
@@ -106,57 +157,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { useProductsStore } from "@/stores/products";
-import { useAppliedFiltersStore } from "@/stores/appliedFilters";
-
-const props = defineProps(['isFixed']);
-const store = useProductsStore();
-let appliedFilters = useAppliedFiltersStore();
-const showTypes = ref(true);
-const showSizes = ref(true);
-const showThemes = ref(true);
-const showFilters = ref(false);
-const showBackgroundTin = ref(false);
-
-const types = computed(() => {
-  let uniqueTypes = new Set();
-
-  store.response.products.forEach((product) => {
-    uniqueTypes.add(product.type);
-  });
-  return Array.from(uniqueTypes);
-});
-
-const sizes = computed(() => {
-  let uniqueTypes = new Set();
-
-  store.response.products.forEach((product) => {
-    uniqueTypes.add(product.size);
-  });
-  return Array.from(uniqueTypes);
-});
-
-const themes = computed(() => {
-  let uniqueTypes = new Set();
-
-  store.response.products.forEach((product) => {
-    uniqueTypes.add(product.theme);
-  });
-  return Array.from(uniqueTypes);
-});
-
-function openFilters() {
-  showFilters.value = true;
-  showBackgroundTin.value = true;
-}
-
-function closeFilters() {
-  showFilters.value = false;
-  setTimeout(() => showBackgroundTin.value = false, 299);
-}
-</script>
 
 <style>
 .custom-check {

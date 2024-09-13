@@ -104,24 +104,18 @@ store.response = await store.getProducts(); //TODO rozibratysia z tym chomu prac
 
 const filtredProducts = computed(() => {
   let allFiltredProducts = new Set();
+  let allProductsWithThisFilter = store.response.products;
 
-  for (let filter of appliedFilters.filters) {
-    const allProductsWithThisFilter = store.response.products.filter(
-      (product) => {
-        return (
-          product.type.includes(filter) ||
-          product.size.includes(filter) ||
-          product.theme.includes(filter)
-        );
-      },
-    );
-    for (let product of allProductsWithThisFilter) {
-      allFiltredProducts.add(product);
-    }
-  }
+  allProductsWithThisFilter = store.response.products.filter((product) => {
+    if (appliedFilters.filters.types.includes(product.type) || appliedFilters.filters.types.length == 0) {
+      if (appliedFilters.filters.sizes.includes(product.size) || appliedFilters.filters.sizes.length == 0) {
+        return (appliedFilters.filters.themes.length == 0 || appliedFilters.filters.themes.includes(product.theme));
+      };
+    };
+  });
 
-  if (appliedFilters.filters.length == 0) {
-    allFiltredProducts = store.response.products;
+  for (let product of allProductsWithThisFilter) {
+    allFiltredProducts.add(product);
   }
 
   if (sortBy.value == "Price") {
