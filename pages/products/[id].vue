@@ -127,6 +127,18 @@ const comments = ref(fetchComments.comments);
 
 const filteredByStarsComments = ref(comments.value.data);
 const currentStarFilter = ref(null);
+
+function getsCommentsWithSpecificStars(starFilter) {
+  if (fetchRatingStatistics[starFilter] == 0) {
+    return;
+  }
+  currentStarFilter.value = starFilter;
+  filteredByStarsComments.value = comments.value.data.filter((comment) => {
+    return (comment.stars == starFilter); 
+  });
+}
+
+
 const playCommentsBounceAnimation = ref(false);
 
 watch(currentStarFilter, (stars) => {
@@ -167,13 +179,6 @@ async function getMoreComments() {
   getMoreCommentsLink.value = json.comments.next_page_url;
 }
 
-async function filterCommentsByStars(starFilter) {
-  currentStarFilter.value = starFilter;
-  const json = await commentsStore.getCommentsWithSpecificStars(route.params.id, starFilter);
-  filteredByStarsComments.value = json.comments.data;
-  getMoreFilteredCommentsLink.value = json.comments.next_page_url
-}
-
 function clearCommentsFilters() {
   filteredByStarsComments.value = comments.value.data;
   currentStarFilter.value = null;
@@ -193,7 +198,7 @@ const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(ro
 function calculateRatingStatistics() {
   const percentageOfStars = [];
   for (let i = 1; i <= 5; i++) {
-    percentageOfStars[i] = (fetchRatingStatistics[0][i] / productRating.amount_of_comments * 80).toPrecision(2);
+    percentageOfStars[i] = (fetchRatingStatistics[i] / productRating.amount_of_comments * 80).toPrecision(2);
   }
   return percentageOfStars;
 };
@@ -340,7 +345,7 @@ function moveCursor(direction) {
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
       @click="zoomedInIsOpened = false" />
-    <div class="fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+    <div class="fixed w-[98%] h-[98productRating.stars%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
       cursor-pointer" v-if="zoomedInIsOpened">
       <button @click="zoomedInIsOpened = false"
         class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
@@ -451,15 +456,15 @@ function moveCursor(direction) {
             {{ Number(productRating.stars).toPrecision(3) }}
           </span>
 
-          <div v-for="i in 5" class="star-statistics my-3 relative flex py-[1%] px-2 rounded-sm"
-            @click="filterCommentsByStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i }">
+          <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-2 rounded-sm"
+            @click="getsCommentsWithSpecificStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': fetchRatingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0}">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
             <div v-if="showStatisticOfRating"
               class="h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded">
               <div class="bg-amber-300 h-full rounded"
                 :class="{ 'filling-color-animation': showFillingAnimation, 'w-[0]': !showFillingAnimation }" />
             </div>
-            <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
+            <span class="text-black"> ({{ fetchRatingStatistics[i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
         </div>
