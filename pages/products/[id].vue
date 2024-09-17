@@ -33,19 +33,6 @@ const setBigPictureSwiper = (swiper) => {
   bigPictureSwiper.value = swiper;
 };
 
-const smallPicturesDirection = computed(() => {
-  if (window == undefined) {
-    console.log('hi');
-    return;
-  }
-
-  if (window.screen.width >= 1024) {
-    return 'vertical';
-  } else {
-    return 'horizontal';
-  }
-});
-
 const youMightLikeProducts = await productStore.getYouMightLikeProducts(route.params.id);
 const youMightLikeSwiper = ref(null);
 const setYouMightLikeSwiper = (swiper) => {
@@ -95,7 +82,9 @@ function changeActiveSlide(pictureId, direction) {
       index = index - 1;
     }
   }
+
   bigPictureSwiper.value.slideTo(index);
+  smallPictureSwiper.value.slideTo(index);
   activePicture.value = picturesForThisProduct[index];
 }
 
@@ -277,21 +266,7 @@ function closeZoomInHoverReverseAnimation() {
 
 const currentTab = ref("description");
 const ratingFilterHover = ref(false);
-const showRightArrow = ref(false);
-const showCustomCursor = ref(false);
 
-function moveCursor(direction) {
-  if (direction == 'right') {
-    showRightArrow.value = true;
-  } else {
-    showRightArrow.value = false;
-  }
-  showCustomCursor.value = true;
-  const customCursor = document.querySelector('.cursor');
-  customCursor.style.top = `${event.clientY}px`;
-  customCursor.style.left = `${event.clientX + window.scrollX}px`;
-  customCursor.style.opacity = 1;
-}
 </script>
 
 <template>
@@ -302,10 +277,11 @@ function moveCursor(direction) {
 
       <div class="relative lg:flex lg:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
         <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-          class=" lg:max-h-[740px] w-full" watch-slides-progress :direction="smallPicturesDirection">
-          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
-            class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer">
-            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer" />
+          class=" lg:max-h-[740px] w-full" watch-slides-progress :direction="'vertical'">
+          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)" 
+            class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
+            :class="{ '!border-blue-900': activePicture.id == picture.id  }">
+            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg cursor-pointer" />
           </swiper-slide>
         </swiper> <!-- Small pictures -->
       </div>
@@ -316,22 +292,17 @@ function moveCursor(direction) {
         <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
           <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
             :class="{ hidden: activePicture.id !== picture.id }" />
-
-          <div class="w-[50%] h-full absolute left-[0px] top-0 custom-cursor"
-            @click="changeActiveSlide(picture.id, 'left')" @mousemove="moveCursor('left')"
-            @mouseleave="showCustomCursor = false" />
-          <div class="w-[50%] h-full absolute right-[0px] top-0 custom-cursor"
-            @click="changeActiveSlide(picture.id, 'right')" @mousemove="moveCursor('right')"
-            @mouseleave="showCustomCursor = false" />
-          <!-- ^ -->
-          <!--  \-  Dividing of screen for changing picture -->
-          <button
-            class="absolute bottom-[40px] right-[40px] bg-white rounded-full border-[1px] border-gray-400 h-[50px] w-[50px]"
-            @click="openZoomIn(picture.imgURL, picture.id)">
-            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-          </button>
         </swiper-slide>
       </swiper> <!-- Big Pictures -->
+
+      <button @click="swiperPrevSlide" v-if="isPreviousSlide"
+        class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+        <font-awesome-icon :icon="['fas', 'chevron-left']" />
+      </button>
+      <button @click="swiperNextSlide" v-if="isNextSlide"
+        class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+        <font-awesome-icon :icon="['fas', 'chevron-right']" />
+      </button>
     </div>
 
     <!--  /-  Custom  cursor done by script -->
@@ -345,7 +316,7 @@ function moveCursor(direction) {
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
       @click="zoomedInIsOpened = false" />
-    <div class="fixed w-[98%] h-[98productRating.stars%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+    <div class="fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
       cursor-pointer" v-if="zoomedInIsOpened">
       <button @click="zoomedInIsOpened = false"
         class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
