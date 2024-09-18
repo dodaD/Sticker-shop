@@ -33,100 +33,111 @@ const setBigPictureSwiper = (swiper) => {
   bigPictureSwiper.value = swiper;
 };
 
-const smallPicturesDirection = computed(() => {
-  if (window == undefined) {
-    console.log('hi');
-    return;
-  }
-
-  if (window.screen.width >= 1024) {
-    return 'vertical';
-  } else {
-    return 'horizontal';
-  }
-});
-
 const youMightLikeProducts = await productStore.getYouMightLikeProducts(route.params.id);
 const youMightLikeSwiper = ref(null);
 const setYouMightLikeSwiper = (swiper) => {
   youMightLikeSwiper.value = swiper;
 };
 
-const swiperNextSlide = () => {
+function youMightLikeSwiperNextSlide() {
   youMightLikeSwiper.value.slideNext();
 };
-const swiperPrevSlide = () => {
+function youMightLikeSwiperPrevSlide() {
   youMightLikeSwiper.value.slidePrev();
 };
 
-const isNextSlide = computed(() => {
+const isNextSlideOnYouMightLike = computed(() => {
   if (youMightLikeSwiper.value == null) {
     return false;
   }
   return youMightLikeSwiper.value.activeIndex != 5;
 });
 
-const isPreviousSlide = computed(() => {
+const isPreviousSlideOnYouMightLike = computed(() => {
   if (youMightLikeSwiper.value == null) {
     return false;
   }
   return youMightLikeSwiper.value.activeIndex != 0;
 });
 
-const additionalPictures = await productStore.getAdditionalPicturesForProduct(route.params.id);
-const picturesForThisProduct = additionalPictures.additional_pictures;
-const optionsForThisProduct = additionalPictures.optional_pictures;
+//FLAGGED 
+const allInfoForThisProduct = await productStore.getSpecificProduct(route.params.id);
+const picturesForThisProduct = ref(allInfoForThisProduct.pictures_for_product);
+const optionsForThisProduct = allInfoForThisProduct.options_for_product;
 
-const activePicture = ref(picturesForThisProduct[0]);
+const activePicture = ref(picturesForThisProduct.value[0]);
 const activeOption = ref(optionsForThisProduct[0]);
 
 function changeActiveSlide(pictureId, direction) {
-  let index = picturesForThisProduct.findIndex((item) => item.id == pictureId);
+  let index = picturesForThisProduct.value.findIndex((item) => item.id == pictureId);
   if (direction == 'right') {
-    if (index == picturesForThisProduct.length - 1) {
+    if (index == picturesForThisProduct.value.length - 1) {
       index = 0;
     } else {
       index = index + 1;
     }
   } else if (direction == 'left') {
     if (index == 0) {
-      index = picturesForThisProduct.length - 1;
+      index = picturesForThisProduct.value.length - 1;
     } else {
       index = index - 1;
     }
   }
+
   bigPictureSwiper.value.slideTo(index);
-  activePicture.value = picturesForThisProduct[index];
+  smallPictureSwiper.value.slideTo(index);
+  activePicture.value = picturesForThisProduct.value[index];
 }
 
 const onSlideChange = () => {
-  for (let i = 0; i < picturesForThisProduct.length; i++) {
+  for (let i = 0; i < picturesForThisProduct.value.length; i++) {
     if (bigPictureSwiper.value.activeIndex === i) {
-      activePicture.value = picturesForThisProduct[i];
+      activePicture.value = picturesForThisProduct.value[i];
     }
   }
 };
 
-function changeOption(option) {
-  const optionSlide = picturesForThisProduct.findIndex((item) => item.id == option);
-  bigPictureSwiper.value.slideTo(optionSlide);
-  const currentOption = optionsForThisProduct.findIndex((item) => item.id == option);
+async function changeOption(optionId) {
+  picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
+  picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
+
+  const currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
   activeOption.value = optionsForThisProduct[currentOption];
+  activePicture.value = picturesForThisProduct.value[0];
 }
 
-const isNextSlideOnSmallPictures = computed(() => {
-  return activePicture.id != picturesForThisProduct[picturesForThisProduct.length - 1].id;
+const isNextSlideOnPictures = computed(() => {
+  return activePicture.value.id != picturesForThisProduct.value[picturesForThisProduct.value.length - 1].id;
 });
 
-const isPreviousSlideOnSmallPictures = computed(() => {
-  return activePicture.id != picturesForThisProduct[0].id;
+const isPreviousSlideOnPictures = computed(() => {
+  return activePicture.value.id != picturesForThisProduct.value[0].id;
 });
+
+function bigPictureSwiperNextSlide() {
+  bigPictureSwiper.value.slideNext();
+};
+function bigPictureSwiperPrevSlide() {
+  bigPictureSwiper.value.slidePrev();
+};
 
 const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
 
 const filteredByStarsComments = ref(comments.value.data);
 const currentStarFilter = ref(null);
+
+function getsCommentsWithSpecificStars(starFilter) {
+  if (fetchRatingStatistics[starFilter] == 0) {
+    return;
+  }
+  currentStarFilter.value = starFilter;
+  filteredByStarsComments.value = comments.value.data.filter((comment) => {
+    return (comment.stars == starFilter);
+  });
+}
+
+
 const playCommentsBounceAnimation = ref(false);
 
 watch(currentStarFilter, (stars) => {
@@ -146,9 +157,9 @@ async function getMoreComments() {
   if (currentStarFilter.value != null) {
     let response = null;
     if (getMoreFilteredCommentsLink.value == null) {
-      response = await commentsStore.getCommentsWithSpecificStars(currentStarFilter.value, route.params.id);
+      //FLAGGED response = await commentsStore.getCommentsWithSpecificStars(currentStarFilter.value, route.params.id);
     } else {
-      response = await fetch(getMoreFilteredCommentsLink.value);
+      //FLAGGED     response = await fetch(getMoreFilteredCommentsLink.value);
     }
 
     const json = await response.json();
@@ -165,13 +176,6 @@ async function getMoreComments() {
     comments.value.data.push(json.comments.data[i]);
   }
   getMoreCommentsLink.value = json.comments.next_page_url;
-}
-
-async function filterCommentsByStars(starFilter) {
-  currentStarFilter.value = starFilter;
-  const json = await commentsStore.getCommentsWithSpecificStars(route.params.id, starFilter);
-  filteredByStarsComments.value = json.comments.data;
-  getMoreFilteredCommentsLink.value = json.comments.next_page_url
 }
 
 function clearCommentsFilters() {
@@ -193,7 +197,7 @@ const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(ro
 function calculateRatingStatistics() {
   const percentageOfStars = [];
   for (let i = 1; i <= 5; i++) {
-    percentageOfStars[i] = (fetchRatingStatistics[0][i] / productRating.amount_of_comments * 80).toPrecision(2);
+    percentageOfStars[i] = (fetchRatingStatistics[i] / productRating.amount_of_comments * 80).toPrecision(2);
   }
   return percentageOfStars;
 };
@@ -223,28 +227,28 @@ function openZoomIn(pictureImgURL, pictureId) {
 }
 
 const currentSlide = computed(() => {
-  const index = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
+  const index = picturesForThisProduct.value.findIndex((item) => item.id == scaledUpId.value);
   return index + 1;
 });
 
 function swipePictures(direction) {
-  let slideIndex = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
+  let slideIndex = picturesForThisProduct.value.findIndex((item) => item.id == scaledUpId.value);
 
   if (direction == 'forward') {
-    if (slideIndex + 1 == picturesForThisProduct.length) {
+    if (slideIndex + 1 == picturesForThisProduct.value.length) {
       slideIndex = -1;
     }
     bigPictureSwiper.value.slideTo(slideIndex + 1);
-    scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
-    scaledUpId.value = picturesForThisProduct[slideIndex + 1].id;
+    scaledUpImg.value = picturesForThisProduct.value[slideIndex + 1].imgURL;
+    scaledUpId.value = picturesForThisProduct.value[slideIndex + 1].id;
     return;
   }
   if (slideIndex == 0) {
-    slideIndex = picturesForThisProduct.length;
+    slideIndex = picturesForThisProduct.value.length;
   }
   bigPictureSwiper.value.slideTo(slideIndex - 1);
-  scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
-  scaledUpId.value = picturesForThisProduct[slideIndex - 1].id;
+  scaledUpImg.value = picturesForThisProduct.value[slideIndex - 1].imgURL;
+  scaledUpId.value = picturesForThisProduct.value[slideIndex - 1].id;
 }
 
 const hover = ref(false);
@@ -272,70 +276,41 @@ function closeZoomInHoverReverseAnimation() {
 
 const currentTab = ref("description");
 const ratingFilterHover = ref(false);
-const showRightArrow = ref(false);
-const showCustomCursor = ref(false);
 
-function moveCursor(direction) {
-  if (direction == 'right') {
-    showRightArrow.value = true;
-  } else {
-    showRightArrow.value = false;
-  }
-  showCustomCursor.value = true;
-  const customCursor = document.querySelector('.cursor');
-  customCursor.style.top = `${event.clientY}px`;
-  customCursor.style.left = `${event.clientX + window.scrollX}px`;
-  customCursor.style.opacity = 1;
-}
 </script>
 
 <template>
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex flex-col xl:flex-row relative">
-
-      <div class="relative lg:flex lg:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
-        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-          class=" lg:max-h-[740px] w-full" watch-slides-progress :direction="smallPicturesDirection">
+    <div class="flex xl:flex-row relative">
+      <div class="relative lg:flex h-fit">
+        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
+          watch-slides-progress :direction="'vertical'">
           <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
-            class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer">
-            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg mr-2 cursor-pointer" />
+            class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
+            :class="{ '!border-blue-900': activePicture.id == picture.id }">
+            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg cursor-pointer" />
           </swiper-slide>
         </swiper> <!-- Small pictures -->
       </div>
 
-      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
-        :slides-per-view="1" :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper"
-        @slideChange="onSlideChange">
+      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px]" :slides-per-view="1"
+        :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper" @slideChange="onSlideChange">
         <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
           <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
             :class="{ hidden: activePicture.id !== picture.id }" />
-
-          <div class="w-[50%] h-full absolute left-[0px] top-0 custom-cursor"
-            @click="changeActiveSlide(picture.id, 'left')" @mousemove="moveCursor('left')"
-            @mouseleave="showCustomCursor = false" />
-          <div class="w-[50%] h-full absolute right-[0px] top-0 custom-cursor"
-            @click="changeActiveSlide(picture.id, 'right')" @mousemove="moveCursor('right')"
-            @mouseleave="showCustomCursor = false" />
-          <!-- ^ -->
-          <!--  \-  Dividing of screen for changing picture -->
-          <button
-            class="absolute bottom-[40px] right-[40px] bg-white rounded-full border-[1px] border-gray-400 h-[50px] w-[50px]"
-            @click="openZoomIn(picture.imgURL, picture.id)">
-            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-          </button>
         </swiper-slide>
       </swiper> <!-- Big Pictures -->
-    </div>
 
-    <!--  /-  Custom  cursor done by script -->
-    <!-- ▽ -->
-    <div
-      class="bg-white rounded-full h-[60px] w-[60px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
-      :class="{ 'hidden': !showCustomCursor, 'block': showCustomCursor }">
-      <font-awesome-icon :icon="['fas', 'chevron-right']" v-if="showRightArrow" />
-      <font-awesome-icon :icon="['fas', 'chevron-left']" v-if="!showRightArrow" />
+      <button @click="bigPictureSwiperPrevSlide" v-if="isPreviousSlideOnPictures"
+        class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+        <font-awesome-icon :icon="['fas', 'chevron-left']" />
+      </button>
+      <button @click="bigPictureSwiperNextSlide" v-if="isNextSlideOnPictures"
+        class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+        <font-awesome-icon :icon="['fas', 'chevron-right']" />
+      </button>
     </div>
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
@@ -370,7 +345,7 @@ function moveCursor(direction) {
       </NuxtLink>
 
       <span class="">Options:
-        <span class="">{{ activeOption.option_name }}</span>
+        <span class="">{{ activeOption.name }}</span>
       </span>
       <div class="flex mt-2">
         <img :src="'/images/' + option.imgURL" class="h-[90px] w-fit rounded-lg mr-1"
@@ -417,11 +392,11 @@ function moveCursor(direction) {
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
     </swiper-slide>
 
-    <button @click="swiperPrevSlide" v-if="isPreviousSlide"
+    <button @click="youMightLikeSwiperPrevSlide" v-if="isPreviousSlideOnYouMightLike"
       class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-left']" />
     </button>
-    <button @click="swiperNextSlide" v-if="isNextSlide"
+    <button @click="youMightLikeSwiperNextSlide" v-if="isNextSlideOnYouMightLike"
       class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-right']" />
     </button>
@@ -451,15 +426,16 @@ function moveCursor(direction) {
             {{ Number(productRating.stars).toPrecision(3) }}
           </span>
 
-          <div v-for="i in 5" class="star-statistics my-3 relative flex py-[1%] px-2 rounded-sm"
-            @click="filterCommentsByStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i }">
+          <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-2 rounded-sm"
+            @click="getsCommentsWithSpecificStars(i)"
+            :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': fetchRatingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0 }">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
             <div v-if="showStatisticOfRating"
               class="h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded">
               <div class="bg-amber-300 h-full rounded"
                 :class="{ 'filling-color-animation': showFillingAnimation, 'w-[0]': !showFillingAnimation }" />
             </div>
-            <span class="text-black"> ({{ fetchRatingStatistics[0][i] }}) </span>
+            <span class="text-black"> ({{ fetchRatingStatistics[i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
         </div>

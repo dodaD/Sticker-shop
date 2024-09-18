@@ -19,11 +19,5 @@ export const useCommentsStore = defineStore("comments", () => {
     return json;
   }
 
-  async function getCommentsWithSpecificStars(product_id, stars) {
-    const response = await fetch('http://localhost/api/comments/get_comments_with_stars/' + product_id + '/' + stars);
-    const json = await response.json();
-    return json;
-  }
-
-  return { getCommentsForProduct, getStarsForProduct, getStarStatisticsForProduct, getCommentsWithSpecificStars };
+  return { getCommentsForProduct, getStarsForProduct, getStarStatisticsForProduct };
 });

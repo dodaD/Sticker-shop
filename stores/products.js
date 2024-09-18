@@ -9,8 +9,8 @@ export const useProductsStore = defineStore("products", () => {
     return json;
   }
 
-  async function getAdditionalPicturesForProduct(product_id) {
-    const response = await fetch('http://localhost/api/additional_pictures/' + product_id);
+  async function getSpecificProduct(product_id) {
+    const response = await fetch('http://localhost/api/products/get_specific_product/' + product_id);
     const json = await response.json();
     return json;
   }
@@ -21,5 +21,11 @@ export const useProductsStore = defineStore("products", () => {
     return json;
   }
 
-  return { response, getProducts, getAdditionalPicturesForProduct, getYouMightLikeProducts };
+  async function getAnotherOptionForProduct(option_id) {
+    const response = await fetch('http://localhost/api/options/' + option_id);
+    const json = await response.json();
+    return json;
+  }
+
+  return { response, getProducts, getSpecificProduct, getYouMightLikeProducts, getAnotherOptionForProduct };
 });
