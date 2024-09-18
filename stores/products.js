@@ -106,9 +106,39 @@ export const useProductsStore = defineStore("products", () => {
     }; 
   }
 
-  async function getAdditionalPicturesForProduct(product_id) {
+  async function getAnotherOptionForProduct(option_id) {
     return {
-      "optional_pictures": [
+      "pictures_for_this": [
+      {
+        "id": 15,
+        "created_at": null,
+        "updated_at": null,
+        "imgURL": "kazuha.jpg",
+        "product_id": 1,
+        "optinal": 1
+      },
+      {
+        "id": 16,
+        "created_at": null,
+        "updated_at": null,
+        "imgURL": "kazuha.jpg",
+        "product_id": 1,
+        "optinal": 1
+      },
+      {
+        "id": 17,
+        "created_at": null,
+        "updated_at": null,
+        "imgURL": "kazuha.jpg",
+        "product_id": 1,
+        "optinal": 0
+      },
+    ]}
+  }
+
+  async function getSpecificProduct(product_id) {
+    return {
+      "options_for_product": [
         {
           "id": 15,
           "created_at": null,
@@ -126,7 +156,7 @@ export const useProductsStore = defineStore("products", () => {
           "optinal": 1
         }
       ],
-      "additional_pictures": [
+      "pictures_for_product": [
         {
           "id": 15,
           "created_at": null,
@@ -150,9 +180,55 @@ export const useProductsStore = defineStore("products", () => {
           "imgURL": "xiao.jpg",
           "product_id": 1,
           "optinal": 0
-        }
+        },
+        {
+          "id": 18,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "albedo.jpg",
+          "product_id": 1,
+          "optinal": 1
+        },
+        {
+          "id": 19,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "kazuha.jpg",
+          "product_id": 1,
+          "optinal": 1
+        },
+        {
+          "id": 20,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "xiao.jpg",
+          "product_id": 1,
+          "optinal": 0
+        },{
+          "id": 21,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "xiao.jpg",
+          "product_id": 1,
+          "optinal": 0
+        },{
+          "id": 22,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "xiao.jpg",
+          "product_id": 1,
+          "optinal": 0
+        },{
+          "id": 23,
+          "created_at": null,
+          "updated_at": null,
+          "imgURL": "xiao.jpg",
+          "product_id": 1,
+          "optinal": 0
+        },
+
       ]
-};
+    };
   }
 
   async function getYouMightLikeProducts(product_id) {
@@ -255,8 +331,8 @@ export const useProductsStore = defineStore("products", () => {
           "description": "Oh come on, you DO need it. And now just order it"
         }
       ]
-};
+    };
   }
 
-  return { response, getProducts, getAdditionalPicturesForProduct, getYouMightLikeProducts };
+  return { response, getProducts, getSpecificProduct, getYouMightLikeProducts, getAnotherOptionForProduct };
 });

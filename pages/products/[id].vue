@@ -39,45 +39,46 @@ const setYouMightLikeSwiper = (swiper) => {
   youMightLikeSwiper.value = swiper;
 };
 
-const swiperNextSlide = () => {
+function youMightLikeSwiperNextSlide() {
   youMightLikeSwiper.value.slideNext();
 };
-const swiperPrevSlide = () => {
+function youMightLikeSwiperPrevSlide() {
   youMightLikeSwiper.value.slidePrev();
 };
 
-const isNextSlide = computed(() => {
+const isNextSlideOnYouMightLike = computed(() => {
   if (youMightLikeSwiper.value == null) {
     return false;
   }
   return youMightLikeSwiper.value.activeIndex != 5;
 });
 
-const isPreviousSlide = computed(() => {
+const isPreviousSlideOnYouMightLike = computed(() => {
   if (youMightLikeSwiper.value == null) {
     return false;
   }
   return youMightLikeSwiper.value.activeIndex != 0;
 });
 
-const additionalPictures = await productStore.getAdditionalPicturesForProduct(route.params.id);
-const picturesForThisProduct = additionalPictures.additional_pictures;
-const optionsForThisProduct = additionalPictures.optional_pictures;
+//FLAGGED 
+const allInfoForThisProduct = await productStore.getSpecificProduct(route.params.id);
+const picturesForThisProduct = ref(allInfoForThisProduct.pictures_for_product);
+const optionsForThisProduct = allInfoForThisProduct.options_for_product;
 
-const activePicture = ref(picturesForThisProduct[0]);
+const activePicture = ref(picturesForThisProduct.value[0]);
 const activeOption = ref(optionsForThisProduct[0]);
 
 function changeActiveSlide(pictureId, direction) {
-  let index = picturesForThisProduct.findIndex((item) => item.id == pictureId);
+  let index = picturesForThisProduct.value.findIndex((item) => item.id == pictureId);
   if (direction == 'right') {
-    if (index == picturesForThisProduct.length - 1) {
+    if (index == picturesForThisProduct.value.length - 1) {
       index = 0;
     } else {
       index = index + 1;
     }
   } else if (direction == 'left') {
     if (index == 0) {
-      index = picturesForThisProduct.length - 1;
+      index = picturesForThisProduct.value.length - 1;
     } else {
       index = index - 1;
     }
@@ -85,31 +86,42 @@ function changeActiveSlide(pictureId, direction) {
 
   bigPictureSwiper.value.slideTo(index);
   smallPictureSwiper.value.slideTo(index);
-  activePicture.value = picturesForThisProduct[index];
+  activePicture.value = picturesForThisProduct.value[index];
 }
 
 const onSlideChange = () => {
-  for (let i = 0; i < picturesForThisProduct.length; i++) {
+  for (let i = 0; i < picturesForThisProduct.value.length; i++) {
     if (bigPictureSwiper.value.activeIndex === i) {
-      activePicture.value = picturesForThisProduct[i];
+      activePicture.value = picturesForThisProduct.value[i];
     }
   }
 };
 
-function changeOption(option) {
-  const optionSlide = picturesForThisProduct.findIndex((item) => item.id == option);
-  bigPictureSwiper.value.slideTo(optionSlide);
-  const currentOption = optionsForThisProduct.findIndex((item) => item.id == option);
+async function changeOption(optionId) {
+  picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
+  picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
+
+  const currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
   activeOption.value = optionsForThisProduct[currentOption];
+  activePicture.value = picturesForThisProduct.value[0];
 }
 
-const isNextSlideOnSmallPictures = computed(() => {
-  return activePicture.id != picturesForThisProduct[picturesForThisProduct.length - 1].id;
+const isNextSlideOnPictures = computed(() => {
+  return activePicture.value.id != picturesForThisProduct.value[picturesForThisProduct.value.length - 1].id;
 });
 
-const isPreviousSlideOnSmallPictures = computed(() => {
-  return activePicture.id != picturesForThisProduct[0].id;
+const isPreviousSlideOnPictures = computed(() => {
+  return activePicture.value.id != picturesForThisProduct.value[0].id;
 });
+
+function bigPictureSwiperNextSlide() {
+  bigPictureSwiper.value.slideNext();
+  smallPictureSwiper.value.slideNext();
+};
+function bigPictureSwiperPrevSlide() {
+  bigPictureSwiper.value.slidePrev();
+  smallPictureSwiper.value.slidePrev();
+};
 
 const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
 const comments = ref(fetchComments.comments);
@@ -123,7 +135,7 @@ function getsCommentsWithSpecificStars(starFilter) {
   }
   currentStarFilter.value = starFilter;
   filteredByStarsComments.value = comments.value.data.filter((comment) => {
-    return (comment.stars == starFilter); 
+    return (comment.stars == starFilter);
   });
 }
 
@@ -143,29 +155,20 @@ watch(currentStarFilter, (stars) => {
 const getMoreCommentsLink = ref(comments.value.next_page_url);
 const getMoreFilteredCommentsLink = ref(null);
 
-async function getMoreComments() {
-  if (currentStarFilter.value != null) {
-    let response = null;
-    if (getMoreFilteredCommentsLink.value == null) {
-      response = await commentsStore.getCommentsWithSpecificStars(currentStarFilter.value, route.params.id);
-    } else {
-      response = await fetch(getMoreFilteredCommentsLink.value);
-    }
+const lastCommentIdToShow = ref(2);
+const increaseCommentIdToShowBy = 3;
 
-    const json = await response.json();
-    for (let i = 0; i < json.comments.data.length; i++) {
-      filteredByStarsComments.value.push(json.comments.data[i]);
-    }
-    getMoreFilteredCommentsLink.value = json.comments.next_page_url;
-    return;
+if (process.client){
+    window.addEventListener('scroll', showMoreCommentsAtBottom);
+}
+
+function showMoreCommentsAtBottom() {
+  let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight
+
+  if (bottomOfWindow) {
+    lastCommentIdToShow.value += increaseCommentIdToShowBy;
   }
 
-  const response = await fetch(getMoreCommentsLink.value);
-  const json = await response.json();
-  for (let i = 0; i < json.comments.data.length; i++) {
-    comments.value.data.push(json.comments.data[i]);
-  }
-  getMoreCommentsLink.value = json.comments.next_page_url;
 }
 
 function clearCommentsFilters() {
@@ -217,28 +220,28 @@ function openZoomIn(pictureImgURL, pictureId) {
 }
 
 const currentSlide = computed(() => {
-  const index = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
+  const index = picturesForThisProduct.value.findIndex((item) => item.id == scaledUpId.value);
   return index + 1;
 });
 
-function swipePictures(direction) {
-  let slideIndex = picturesForThisProduct.findIndex((item) => item.id == scaledUpId.value);
+function swipeZoomedInPictures(direction) {
+  let slideIndex = picturesForThisProduct.value.findIndex((item) => item.id == scaledUpId.value);
 
   if (direction == 'forward') {
-    if (slideIndex + 1 == picturesForThisProduct.length) {
+    if (slideIndex + 1 == picturesForThisProduct.value.length) {
       slideIndex = -1;
     }
     bigPictureSwiper.value.slideTo(slideIndex + 1);
-    scaledUpImg.value = picturesForThisProduct[slideIndex + 1].imgURL;
-    scaledUpId.value = picturesForThisProduct[slideIndex + 1].id;
+    scaledUpImg.value = picturesForThisProduct.value[slideIndex + 1].imgURL;
+    scaledUpId.value = picturesForThisProduct.value[slideIndex + 1].id;
     return;
   }
   if (slideIndex == 0) {
-    slideIndex = picturesForThisProduct.length;
+    slideIndex = picturesForThisProduct.value.length;
   }
   bigPictureSwiper.value.slideTo(slideIndex - 1);
-  scaledUpImg.value = picturesForThisProduct[slideIndex - 1].imgURL;
-  scaledUpId.value = picturesForThisProduct[slideIndex - 1].id;
+  scaledUpImg.value = picturesForThisProduct.value[slideIndex - 1].imgURL;
+  scaledUpId.value = picturesForThisProduct.value[slideIndex - 1].id;
 }
 
 const hover = ref(false);
@@ -273,45 +276,36 @@ const ratingFilterHover = ref(false);
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex flex-col xl:flex-row relative">
-
-      <div class="relative lg:flex lg:max-h-[740px] h-fit translate-y-[740px] xl:translate-y-[0px]">
-        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-          class=" lg:max-h-[740px] w-full" watch-slides-progress :direction="'vertical'">
-          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)" 
+    <div class="flex xl:flex-row relative md:h-[740px]">
+      <div class="relative lg:flex h-full">
+        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
+          watch-slides-progress :direction="'vertical'">
+          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
             class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
-            :class="{ '!border-blue-900': activePicture.id == picture.id  }">
+            :class="{ '!border-blue-900': activePicture.id == picture.id }">
             <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg cursor-pointer" />
           </swiper-slide>
         </swiper> <!-- Small pictures -->
       </div>
 
-      <swiper class="md:w-[600px] md:h-[740px] w-[260px] h-[370px] lg:translate-y-[-100px] xl:translate-y-[0px]"
-        :slides-per-view="1" :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper"
-        @slideChange="onSlideChange">
-        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
-          <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg"
-            :class="{ hidden: activePicture.id !== picture.id }" />
-        </swiper-slide>
-      </swiper> <!-- Big Pictures -->
+      <div class="relative md:w-[600px] w-[260px] h-[370px] md:h-full lg:flex">
+        <swiper class="h-full" :slides-per-view="1"
+          :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper" @slideChange="onSlideChange">
+          <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
+            <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg cursor-zoom-in"
+              :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL, picture.id)"/>
+          </swiper-slide>
+        </swiper> <!-- Big Pictures -->
 
-      <button @click="swiperPrevSlide" v-if="isPreviousSlide"
-        class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
-        <font-awesome-icon :icon="['fas', 'chevron-left']" />
-      </button>
-      <button @click="swiperNextSlide" v-if="isNextSlide"
-        class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
-        <font-awesome-icon :icon="['fas', 'chevron-right']" />
-      </button>
-    </div>
-
-    <!--  /-  Custom  cursor done by script -->
-    <!-- ▽ -->
-    <div
-      class="bg-white rounded-full h-[60px] w-[60px] fixed cursor z-50 border-[1px] border-slate-200 opacity-0 flex items-center justify-center"
-      :class="{ 'hidden': !showCustomCursor, 'block': showCustomCursor }">
-      <font-awesome-icon :icon="['fas', 'chevron-right']" v-if="showRightArrow" />
-      <font-awesome-icon :icon="['fas', 'chevron-left']" v-if="!showRightArrow" />
+        <button @click="bigPictureSwiperPrevSlide" v-if="isPreviousSlideOnPictures"
+          class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+          <font-awesome-icon :icon="['fas', 'chevron-left']" />
+        </button>
+        <button @click="bigPictureSwiperNextSlide" v-if="isNextSlideOnPictures"
+          class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+          <font-awesome-icon :icon="['fas', 'chevron-right']" />
+        </button>
+      </div>
     </div>
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
@@ -330,9 +324,9 @@ const ratingFilterHover = ref(false);
 
       <button
         class="rounded-full px-12 py-2 text-md my-4 bg-white h-fit fixed bottom-[20px] border-[1px] border-slate-300">
-        <font-awesome-icon :icon="['fas', 'chevron-left']" @click="swipePictures('back')" />
+        <font-awesome-icon :icon="['fas', 'chevron-left']" @click="swipeZoomedInPictures('back')" />
         <span class="mx-4">{{ currentSlide }}/{{ picturesForThisProduct.length }}</span>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" @click="swipePictures('forward')" />
+        <font-awesome-icon :icon="['fas', 'chevron-right']" @click="swipeZoomedInPictures('forward')" />
       </button>
     </div> <!-- Zoomed In Picture -->
 
@@ -346,7 +340,7 @@ const ratingFilterHover = ref(false);
       </NuxtLink>
 
       <span class="">Options:
-        <span class="">{{ activeOption.option_name }}</span>
+        <span class="">{{ activeOption.name }}</span>
       </span>
       <div class="flex mt-2">
         <img :src="'/images/' + option.imgURL" class="h-[90px] w-fit rounded-lg mr-1"
@@ -393,11 +387,11 @@ const ratingFilterHover = ref(false);
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
     </swiper-slide>
 
-    <button @click="swiperPrevSlide" v-if="isPreviousSlide"
+    <button @click="youMightLikeSwiperPrevSlide" v-if="isPreviousSlideOnYouMightLike"
       class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-left']" />
     </button>
-    <button @click="swiperNextSlide" v-if="isNextSlide"
+    <button @click="youMightLikeSwiperNextSlide" v-if="isNextSlideOnYouMightLike"
       class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-right']" />
     </button>
@@ -428,7 +422,8 @@ const ratingFilterHover = ref(false);
           </span>
 
           <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-2 rounded-sm"
-            @click="getsCommentsWithSpecificStars(i)" :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': fetchRatingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0}">
+            @click="getsCommentsWithSpecificStars(i)"
+            :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': fetchRatingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0 }">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
             <div v-if="showStatisticOfRating"
               class="h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded">
@@ -447,16 +442,11 @@ const ratingFilterHover = ref(false);
       </button>
     </div>
 
-    <div v-for="comment in filteredByStarsComments" :key="comment.id" class="my-2"
-      :class="{ 'bounce-in': playCommentsBounceAnimation }">
+    <div v-for="(comment, index) in filteredByStarsComments" :key="comment.id" class="my-2"
+      :class="{ 'bounce-in': playCommentsBounceAnimation, 'hidden': index > lastCommentIdToShow}">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
     </div>
 
-    <button
-      v-if="getMoreCommentsLink != null && filteredByStarsComments == comments.data || filteredByStarsComments != comments.data && getMoreFilteredCommentsLink != null"
-      @click="getMoreComments" class="mx-auto mt-6 py-1 px-4 border-[1px] rounded-lg">
-      Show more comments
-    </button>
   </div>
 </template>
 
