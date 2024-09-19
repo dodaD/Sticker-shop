@@ -1,8 +1,8 @@
 <template>
   <div
-    class="flex flex-col hover:bg-stone-200/65 rounded-md z-0 justify-center items-center p-[10px] translate-y-[-10px] w-fit"
+    class="flex flex-col hover:bg-stone-200/65 rounded-md z-0 justify-center items-center p-[10px] translate-y-[-10px] w-fit h-[370px]"
     @click="openProductProfile">
-    <img v-if="img" :src="'/images/' + img" class="w-[260px] h-[370px]" />
+    <img v-if="img" :src="'/images/' + img" class="w-[260px] h-full" />
     <span class="mx-auto"> {{ title }} </span>
     <span class="mx-auto mb-2"> {{ price }} </span>
   </div>

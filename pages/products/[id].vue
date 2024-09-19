@@ -276,17 +276,15 @@ const ratingFilterHover = ref(false);
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex xl:flex-row relative md:h-[740px]">
-      <div class="relative lg:flex h-full">
-        <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
-          watch-slides-progress :direction="'vertical'">
-          <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
-            class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
-            :class="{ '!border-blue-900': activePicture.id == picture.id }">
-            <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg cursor-pointer" />
-          </swiper-slide>
-        </swiper> <!-- Small pictures -->
-      </div>
+    <div class="flex relative md:max-h-[740px]  max-h-[370px] flex">
+      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
+        watch-slides-progress :direction="'vertical'">
+        <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
+          class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
+          :class="{ '!border-blue-900': activePicture.id == picture.id }">
+          <img :src="'/images/' + picture.imgURL" class="!h-[100px] !w-fit rounded-lg cursor-pointer" />
+        </swiper-slide>
+      </swiper> <!-- Small pictures -->
 
       <div class="relative md:w-[600px] w-[260px] h-[370px] md:h-full lg:flex">
         <swiper class="h-full" :slides-per-view="1"
@@ -310,7 +308,7 @@ const ratingFilterHover = ref(false);
 
     <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
       @click="zoomedInIsOpened = false" />
-    <div class="fixed w-[98%] h-[98%] top-[1%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+    <div class="fixed w-[98%] h-[500px] md:h-[98%] top-[50%] translate-y-[-50%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
       cursor-pointer" v-if="zoomedInIsOpened">
       <button @click="zoomedInIsOpened = false"
         class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
@@ -378,12 +376,12 @@ const ratingFilterHover = ref(false);
     </div>
   </div>
 
-  <div class="text-3xl mt-[100px] mb-4">You might also like:</div>
+  <div class="text-3xl mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
   <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="setYouMightLikeSwiper"
-    class="h-full w-full relative">
+    class="w-full relative">
     <swiper-slide v-for="product in youMightLikeProducts.products"
-      class="second-swiper-slide !h-[480px] !flex justify-center items-center">
+      class="second-swiper-slide !flex justify-center items-center">
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
     </swiper-slide>
 
