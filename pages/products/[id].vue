@@ -272,11 +272,12 @@ const ratingFilterHover = ref(false);
 
 </script>
 
+<!-- Flagged: See how screen devides, revise it, and adjust it. Picture is WAYYYYYY too big; doesn't make sense at all -->
 <template>
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex relative md:max-h-[740px]  max-h-[370px] flex">
+    <div class="flex relative lg:max-h-[740px] w-fit max-h-[370px] flex">
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
         watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
@@ -379,7 +380,7 @@ const ratingFilterHover = ref(false);
   <div class="text-3xl mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
   <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="setYouMightLikeSwiper"
-    class="w-full relative">
+    class="relative w-[300px] md:w-full">
     <swiper-slide v-for="product in youMightLikeProducts.products"
       class="second-swiper-slide !flex justify-center items-center">
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
