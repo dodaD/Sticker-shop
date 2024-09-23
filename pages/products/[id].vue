@@ -277,8 +277,8 @@ const ratingFilterHover = ref(false);
   <div class="flex lg:flex-row flex-col"
     v-if="productStore.response.products !== undefined && picturesForThisProduct !== undefined">
 
-    <div class="flex relative lg:max-h-[740px] w-fit max-h-[370px] flex">
-      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="w-full"
+    <div class="flex relative lg:h-fit max-h-[500px] h-fit flex justify-center content-center mr-3">
+      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="!hidden lg:!block !mr-2"
         watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
           class="!h-[102px] !w-fit rounded-lg mr-2 cursor-pointer rounded-lg border-[1px] border-transparent flex content-center"
@@ -287,11 +287,11 @@ const ratingFilterHover = ref(false);
         </swiper-slide>
       </swiper> <!-- Small pictures -->
 
-      <div class="relative md:w-[600px] w-[260px] h-[370px] md:h-full lg:flex">
+      <div class="relative lg:w-[350px] w-[260px] lg:flex">
         <swiper class="h-full" :slides-per-view="1"
           :scrollbar="{ draggable: true }" @swiper="setBigPictureSwiper" @slideChange="onSlideChange">
           <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
-            <img :src="'/images/' + picture.imgURL" class="w-fit h-[100%] mx-auto rounded-lg cursor-zoom-in"
+            <img :src="'/images/' + picture.imgURL" class="w-full mx-auto rounded-lg cursor-zoom-in"
               :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL, picture.id)"/>
           </swiper-slide>
         </swiper> <!-- Big Pictures -->
@@ -329,7 +329,7 @@ const ratingFilterHover = ref(false);
       </button>
     </div> <!-- Zoomed In Picture -->
 
-    <div class="w-[100%] xl:max-w-[450px] lg:ml-[10px]"> <!-- Product Description; Section Right From Product -->
+    <div class="w-[450px] lg:ml-[10px]"> <!-- Product Description; Section Right From Product -->
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
       <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
         :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
