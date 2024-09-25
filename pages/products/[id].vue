@@ -242,7 +242,7 @@ const ratingFilterHover = ref(false);
     <div v-for="(comment, index) in filteredByStarsComments" :key="comment.id" class="my-2"
       :class="{ 'bounce-in': playCommentsBounceAnimation, 'hidden': index > lastCommentIdToShow}">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
-    </div>
+    </div>:class="{ hidden: activePicture.id !== picture.id }"
 
   </div>
 </template>

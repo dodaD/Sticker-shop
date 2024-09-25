@@ -11,7 +11,8 @@
     flex
     sm:block 
     py-2
-    px-2">
+    px-2
+    overflow-hidden">
     <slot />
   </div>
 </template>
