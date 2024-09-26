@@ -142,17 +142,29 @@ function swipeZoomedInPictures(direction) {
       </swiper>
       <!-- Small pictures -->
  
-      <!--Hello-->
 
       <!-- Big picture -->
       <swiper 
+          class="relative w-[360px]"
           :slidesPerView="1"
           @swiper="setBigPictureSwiper"
       >
-        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
-          <img :src="'/images/' + picture.imgURL" class=""
+        <swiper-slide v-for="picture in picturesForThisProduct" class="">
+          <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
             :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL, picture.id)"/>
         </swiper-slide>
+
+        <button @click="bigPictureSwiperPrevSlide" v-if="isPreviousSlideOnPictures"
+          class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center"
+        >
+          <font-awesome-icon :icon="['fas', 'chevron-left']" />
+        </button>
+
+        <button @click="bigPictureSwiperNextSlide" v-if="isNextSlideOnPictures"
+          class="absolute top-[50%] right-0 translate-y-[-50%] bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center"
+        >
+          <font-awesome-icon :icon="['fas', 'chevron-right']" />
+        </button>
       </swiper>
     </div>
 
