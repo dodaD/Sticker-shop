@@ -54,6 +54,7 @@ function changeActiveSlide(pictureId, direction) {
   bigPictureSwiper.value.slideTo(index);
   smallPictureSwiper.value.slideTo(index);
   activePicture.value = picturesForThisProduct.value[index];
+  console.log(bigPictureSwiper.value.slideNext());
 }
 
 async function changeOption(optionId) {
@@ -75,11 +76,10 @@ const isPreviousSlideOnPictures = computed(() => {
 
 function bigPictureSwiperNextSlide() {
   bigPictureSwiper.value.slideNext();
-  console.log(bigPictureSwiper.value.slideNext());
   activePicture.value = picturesForThisProduct.value[bigPictureSwiper.value.activeIndex];
-  console.log(picturesForThisProduct.value[bigPictureSwiper.value.activeIndex]);
   smallPictureSwiper.value.slideNext();
 };
+
 function bigPictureSwiperPrevSlide() {
   bigPictureSwiper.value.slidePrev();
   activePicture.value = picturesForThisProduct.value[bigPictureSwiper.value.activeIndex];
@@ -141,34 +141,18 @@ function swipeZoomedInPictures(direction) {
         </swiper-slide>
       </swiper>
       <!-- Small pictures -->
-
+ 
+      <!--Hello-->
 
       <!-- Big picture -->
-      <swiper class="relative" 
-        :slides-per-view="1"
-        @swiper="setBigPictureSwiper"
+      <swiper 
+          :slidesPerView="1"
+          @swiper="setBigPictureSwiper"
       >
-      <!-- V-Bind class needed to not overflow screen because of wrapper-->
-        <swiper-slide v-for="picture in picturesForThisProduct" :class="{ '!hidden': activePicture.id !== picture.id }">
-          <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
-            @click="openZoomIn(picture.imgURL, picture.id)"
-          />
+        <swiper-slide v-for="picture in picturesForThisProduct" class="relative">
+          <img :src="'/images/' + picture.imgURL" class=""
+            :class="{ hidden: activePicture.id !== picture.id }" @click="openZoomIn(picture.imgURL, picture.id)"/>
         </swiper-slide>
-
-        <button
-          @click="bigPictureSwiperPrevSlide"
-          v-if="isPreviousSlideOnPictures"
-          class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-left']" />
-        </button>
-        <button 
-          @click="bigPictureSwiperNextSlide"
-          v-if="isNextSlideOnPictures"
-          class="absolute top-[50%] right-0 translate-y-[-50%] bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-right']" />
-        </button>
       </swiper>
     </div>
 
