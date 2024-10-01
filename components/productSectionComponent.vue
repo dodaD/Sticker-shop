@@ -8,6 +8,7 @@ import { Navigation, Pagination, Scrollbar, A11y, Thumbs, Mousewheel } from 'swi
 import 'swiper/css';
 import 'swiper/css/bundle';
 
+const props = defineProps(['amountOfComments, productRatingInProcents']);
 const modules = [Navigation, Pagination, Scrollbar, A11y];
 
 const route = useRoute();
@@ -15,6 +16,12 @@ const productStore = useProductsStore();
 if (productStore.response.products === undefined) {
   productStore.response = await productStore.getProducts();
 }
+
+const product = computed(() => {
+  if (productStore.response.products !== undefined) {
+    return productStore.response.products.find((item) => item.id == route.params.id);
+  }
+});
 
 const smallPictureSwiper = ref(null);
 const setSmallPicturesSwiper = (swiper) => {
@@ -31,6 +38,7 @@ const setBigPictureSwiper = (swiper) => {
 const allInfoForThisProduct = await productStore.getSpecificProduct(route.params.id);
 const picturesForThisProduct = ref(allInfoForThisProduct.pictures_for_product);
 const optionsForThisProduct = allInfoForThisProduct.options_for_product;
+const currentOption = optionsForThisProduct[0];
 
 function changeActiveSlide(pictureId, direction) {
   let index = picturesForThisProduct.value.findIndex((item) => item.id == pictureId);
@@ -46,7 +54,7 @@ function changeActiveSlide(pictureId, direction) {
     } else {
       index = index - 1;
     }
-  }
+  } //Might be better way to check it
 
   bigPictureSwiper.value.slideTo(index);
   smallPictureSwiper.value.slideTo(index);
@@ -55,16 +63,21 @@ function changeActiveSlide(pictureId, direction) {
 async function changeOption(optionId) {
   picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
   picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
-
-  const currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
+  currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
 }
 
 const isNextSlideOnPictures = computed(() => {
-  return //TODO use ActiveIndex;
+  if (bigPictureSwiper.value == null) {
+    return false;
+  }
+  return bigPictureSwiper.value.activeIndex != picturesForThisProduct.value.length - 1;
 });
 
 const isPreviousSlideOnPictures = computed(() => {
-  return //TODO use ActiveIndex;
+  if (bigPictureSwiper.value == null) {
+    return false;
+  }
+  return bigPictureSwiper.value.activeIndex != 0;
 });
 
 function bigPictureSwiperNextSlide() {
@@ -113,37 +126,52 @@ const activeSmallPictureId = computed(() => {
   if (smallPictureSwiper.value == null) {
     return;
   }
-  return picturesForThisProduct.value[smallPictureSwiper.value.activeIndex].id;
+  return picturesForThisProduct.value[bigPictureSwiper.value.activeIndex].id;
 });
 </script>
 
 <template>
   <div class="flex">
-    <div class="h-[500px] flex"> <!-- Swiper Pictures -->
+    <div class="h-[500px] flex w-[430px]"> <!-- Swiper Pictures -->
       <!-- Small pictures -->
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
         class="!hidden lg:!block !mr-6 max-w-fit]" watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
-          class="!h-[100px] !w-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
+          class="!h-fit !w-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
-          <img :src="'/images/' + picture.imgURL" class="h-full w-[auto] rounded-lg" />
+          <img :src="'/images/' + picture.imgURL" class="h-[auto] w-[65px] rounded-lg" />
         </swiper-slide>
       </swiper>
 
       <!-- Big picture -->
-      <swiper class="relative w-[360px]" :slidesPerView="1" @swiper="setBigPictureSwiper">
+      <swiper class="relative" :slidesPerView="1" @swiper="setBigPictureSwiper">
         <swiper-slide v-for="picture in picturesForThisProduct" class="">
-          <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
+          <img :src="'/images/' + picture.imgURL" class="h-full w-[350px] rounded-lg cursor-zoom-in"
             @click="openZoomIn(picture.imgURL, picture.id)" />
         </swiper-slide>
-        <nextSlideButton @next-slide="bigPictureSwiperNextSlide" />
-        <prevSlideButton @prev-slide="bigPictureSwiperPrevSlide" />
+        <nextSlideButton @next-slide="bigPictureSwiperNextSlide" :isShowing="isNextSlideOnPictures" />
+        <prevSlideButton @prev-slide="bigPictureSwiperPrevSlide" :isShowing="isPreviousSlideOnPictures" />
       </swiper>
     </div>
 
-    <div> <!-- Section to the right -->
+    <div class="w-full ml-[10px]"> <!-- Section to the right -->
+      <h2 class="">{{ product.title }}</h2>
+
+      <!-- <NuxtLink class=""
+        :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
+        <span>${{ product.price }}0</span>
+        <starsComponent :stars="props.productRatingInProcents" />
+        <span>({{ props.amountOfComments }})</span>
+      </NuxtLink> -->
+
+      <span class="">Options:
+        <span class=""></span>
+      </span>
+      <div class="flex mt-2">
+        <img :src="'/images/' + option.imgURL" class="" v-for="option in optionsForThisProduct"
+          @click="changeOption(option.id)" />
+      </div>
 
     </div>
-
   </div>
 </template>

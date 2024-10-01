@@ -172,7 +172,8 @@ const ratingFilterHover = ref(false);
 
 <!-- Flagged: See how screen devides, revise it, and adjust it. Picture is WAYYYYYY too big; doesn't make sense at all -->
 <template>
-  <productSectionComponent />
+  <productSectionComponent :amountOfComments="productRating.amount_of_comments"
+    :productRatingInProcents="productRatingInProcents" />
 
   <div class="text-3xl mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
