@@ -135,7 +135,7 @@ const activeSmallPictureId = computed(() => {
     <div class="h-[500px] flex w-[430px]"> <!-- Swiper Pictures -->
       <!-- Small pictures -->
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-        class="!hidden lg:!block max-w-fit" watch-slides-progress :direction="'vertical'">
+        class="!hidden lg:!block max-w-[70px] min-w-[70px]" watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
           class="!h-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
@@ -155,12 +155,12 @@ const activeSmallPictureId = computed(() => {
     </div>
 
     <div class="w-full ml-[10px]"> <!-- Section to the right -->
-      <h2 class="">{{ product.title }}</h2>
+      <h2 class="font-semibold">{{ product.title }}</h2>
       <span class="">Options:
         <span class=""></span>
       </span>
       <div class="flex mt-2">
-        <img :src="'/images/' + option.imgURL" class="" v-for="option in optionsForThisProduct"
+        <img :src="'/images/' + option.imgURL" class="w-[120px]" v-for="option in optionsForThisProduct"
           @click="changeOption(option.id)" />
       </div>
 
