@@ -135,18 +135,18 @@ const activeSmallPictureId = computed(() => {
     <div class="h-[500px] flex w-[430px]"> <!-- Swiper Pictures -->
       <!-- Small pictures -->
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-        class="!hidden lg:!block !mr-6 max-w-fit]" watch-slides-progress :direction="'vertical'">
+        class="!hidden lg:!block max-w-fit" watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
-          class="!h-fit !w-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
+          class="!h-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
-          <img :src="'/images/' + picture.imgURL" class="h-[auto] w-[65px] rounded-lg" />
+          <img :src="'/images/' + picture.imgURL" class="h-[auto] w-full rounded-lg" />
         </swiper-slide>
       </swiper>
 
       <!-- Big picture -->
       <swiper class="relative" :slidesPerView="1" @swiper="setBigPictureSwiper">
         <swiper-slide v-for="picture in picturesForThisProduct" class="">
-          <img :src="'/images/' + picture.imgURL" class="h-full w-[350px] rounded-lg cursor-zoom-in"
+          <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
             @click="openZoomIn(picture.imgURL, picture.id)" />
         </swiper-slide>
         <nextSlideButton @next-slide="bigPictureSwiperNextSlide" :isShowing="isNextSlideOnPictures" />
@@ -156,14 +156,6 @@ const activeSmallPictureId = computed(() => {
 
     <div class="w-full ml-[10px]"> <!-- Section to the right -->
       <h2 class="">{{ product.title }}</h2>
-
-      <!-- <NuxtLink class=""
-        :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
-        <span>${{ product.price }}0</span>
-        <starsComponent :stars="props.productRatingInProcents" />
-        <span>({{ props.amountOfComments }})</span>
-      </NuxtLink> -->
-
       <span class="">Options:
         <span class=""></span>
       </span>
