@@ -8,7 +8,7 @@ import { Navigation, Pagination, Scrollbar, A11y, Thumbs, Mousewheel } from 'swi
 import 'swiper/css';
 import 'swiper/css/bundle';
 
-const props = defineProps(['amountOfComments, productRatingInProcents']);
+const props = defineProps(['amountOfComments', 'productRatingInProcents']);
 const modules = [Navigation, Pagination, Scrollbar, A11y];
 
 const route = useRoute();
@@ -38,7 +38,14 @@ const setBigPictureSwiper = (swiper) => {
 const allInfoForThisProduct = await productStore.getSpecificProduct(route.params.id);
 const picturesForThisProduct = ref(allInfoForThisProduct.pictures_for_product);
 const optionsForThisProduct = allInfoForThisProduct.options_for_product;
-const currentOption = optionsForThisProduct[0];
+const currentOptionId = ref(optionsForThisProduct[0].id);
+
+const nameOfCurrentOption = computed(() => {
+  const indexOfCurrentOption = optionsForThisProduct.findIndex((option) => {
+    return option.id == currentOptionId.value;
+  });
+  return optionsForThisProduct[indexOfCurrentOption].name;
+});
 
 function changeActiveSlide(pictureId, direction) {
   let index = picturesForThisProduct.value.findIndex((item) => item.id == pictureId);
@@ -63,7 +70,7 @@ function changeActiveSlide(pictureId, direction) {
 async function changeOption(optionId) {
   picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
   picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
-  currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
+  currentOptionId.value = optionId;
 }
 
 const isNextSlideOnPictures = computed(() => {
@@ -128,24 +135,27 @@ const activeSmallPictureId = computed(() => {
   }
   return picturesForThisProduct.value[bigPictureSwiper.value.activeIndex].id;
 });
+
 </script>
 
 <template>
   <div class="flex">
-    <div class="h-[500px] flex w-[430px]"> <!-- Swiper Pictures -->
+    <div class="h-[500px] flex w-[10%]">
       <!-- Small pictures -->
-      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-        class="!hidden lg:!block max-w-fit" watch-slides-progress :direction="'vertical'">
+      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="!hidden lg:!block"
+        watch-slides-progress :direction="'vertical'">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
           class="!h-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
           <img :src="'/images/' + picture.imgURL" class="h-[auto] w-full rounded-lg" />
         </swiper-slide>
       </swiper>
+    </div>
 
+    <div class="h-[500px] flex w-[45%] pl-2">
       <!-- Big picture -->
-      <swiper class="relative" :slidesPerView="1" @swiper="setBigPictureSwiper">
-        <swiper-slide v-for="picture in picturesForThisProduct" class="">
+      <swiper class="relative w-full" :slidesPerView="1" @swiper="setBigPictureSwiper">
+        <swiper-slide v-for="picture in picturesForThisProduct">
           <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
             @click="openZoomIn(picture.imgURL, picture.id)" />
         </swiper-slide>
@@ -154,16 +164,25 @@ const activeSmallPictureId = computed(() => {
       </swiper>
     </div>
 
-    <div class="w-full ml-[10px]"> <!-- Section to the right -->
-      <h2 class="">{{ product.title }}</h2>
+    <div class="h-[500px] flex flex-col w-[45%]"> <!-- Section to the right -->
+      <h2 class="my-4 font-semibold">{{ product.title }}</h2>
+
+      <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
+        :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
+        <span>${{ product.price }}0</span>
+        <starsComponent :stars="props.productRatingInProcents" />
+        <span>({{ props.amountOfComments }})</span>
+      </NuxtLink> <!-- Stars -->
+
       <span class="">Options:
-        <span class=""></span>
+        <span class="">{{ nameOfCurrentOption }}</span>
       </span>
-      <div class="flex mt-2">
-        <img :src="'/images/' + option.imgURL" class="" v-for="option in optionsForThisProduct"
+      <div class="flex mt-2 w-full">
+        <img :src="'/images/' + option.imgURL" class="w-[100px] mr-2 rounded-lg border-[1px] border-transparent"
+          v-for="option in optionsForThisProduct" :class="{ '!border-sky-500': currentOptionId === option.id }"
           @click="changeOption(option.id)" />
       </div>
-
     </div>
+
   </div>
 </template>
