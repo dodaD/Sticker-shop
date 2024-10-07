@@ -8,7 +8,7 @@ import { Navigation, Pagination, Scrollbar, A11y, Thumbs, Mousewheel } from 'swi
 import 'swiper/css';
 import 'swiper/css/bundle';
 
-const props = defineProps(['amountOfComments, productRatingInProcents']);
+const props = defineProps(['amountOfComments', 'productRatingInProcents']);
 const modules = [Navigation, Pagination, Scrollbar, A11y];
 
 const route = useRoute();
@@ -38,7 +38,15 @@ const setBigPictureSwiper = (swiper) => {
 const allInfoForThisProduct = await productStore.getSpecificProduct(route.params.id);
 const picturesForThisProduct = ref(allInfoForThisProduct.pictures_for_product);
 const optionsForThisProduct = allInfoForThisProduct.options_for_product;
-const currentOption = optionsForThisProduct[0];
+const currentOptionId = ref(optionsForThisProduct[0].id);
+
+const nameOfCurrentOption = computed(() => {
+  const indexOfCurrentOption = optionsForThisProduct.findIndex((option) => {
+    return option.id == currentOptionId.value;
+  });
+  console.log(optionsForThisProduct[indexOfCurrentOption]);
+  return optionsForThisProduct[indexOfCurrentOption].name;
+});
 
 function changeActiveSlide(pictureId, direction) {
   let index = picturesForThisProduct.value.findIndex((item) => item.id == pictureId);
@@ -63,7 +71,7 @@ function changeActiveSlide(pictureId, direction) {
 async function changeOption(optionId) {
   picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
   picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
-  currentOption = optionsForThisProduct.findIndex((item) => item.id == optionId);
+  currentOptionId.value = optionId;
 }
 
 const isNextSlideOnPictures = computed(() => {
@@ -90,11 +98,38 @@ function bigPictureSwiperPrevSlide() {
   smallPictureSwiper.value.slidePrev();
 };
 
+const zoomedInIsOpened = ref(false);
+const scaledUpImg = ref('');
+const scaledUpId = ref('');
+const zoomInMore = ref(false);
 
 function openZoomIn(pictureImgURL, pictureId) {
   scaledUpImg.value = pictureImgURL;
   zoomedInIsOpened.value = true;
   scaledUpId.value = pictureId;
+}
+
+const hover = ref(false);
+const closeButtonAnimation = ref(false);
+
+function closeZoomInHoverAnimation() {
+  if (hover.value == true) {
+    return;
+  }
+  closeButtonAnimation.value = true;
+  hover.value = true;
+  setTimeout(() => {
+    closeButtonAnimation.value = false;
+  }, 300);
+}
+
+const reverseCloseButtonAnimation = ref(false);
+function closeZoomInHoverReverseAnimation() {
+  reverseCloseButtonAnimation.value = true;
+  hover.value = false;
+  setTimeout(() => {
+    reverseCloseButtonAnimation.value = false;
+  }, 300);
 }
 
 const currentSlide = computed(() => {
@@ -128,42 +163,77 @@ const activeSmallPictureId = computed(() => {
   }
   return picturesForThisProduct.value[bigPictureSwiper.value.activeIndex].id;
 });
+
 </script>
 
 <template>
   <div class="flex">
-    <div class="h-[500px] flex w-[430px]"> <!-- Swiper Pictures -->
+    <div class="h-[500px] flex w-[10%] !hidden lg:!block">
       <!-- Small pictures -->
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
-        class="!hidden lg:!block max-w-[70px] min-w-[70px]" watch-slides-progress :direction="'vertical'">
+        watch-slides-progress :direction="'vertical'" class="max-h-full">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
           class="!h-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
           <img :src="'/images/' + picture.imgURL" class="h-[auto] w-full rounded-lg" />
         </swiper-slide>
       </swiper>
+    </div>
 
+    <div class="h-[380px] lg:h-[500px] flex w-[50%] lg:w-[45%]">
       <!-- Big picture -->
-      <swiper class="relative" :slidesPerView="1" @swiper="setBigPictureSwiper">
-        <swiper-slide v-for="picture in picturesForThisProduct" class="">
+      <swiper class="relative w-full justify-center" :slidesPerView="1" @swiper="setBigPictureSwiper">
+        <swiper-slide v-for="picture in picturesForThisProduct" class="!flex justify-center">
           <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
             @click="openZoomIn(picture.imgURL, picture.id)" />
         </swiper-slide>
         <nextSlideButton @next-slide="bigPictureSwiperNextSlide" :isShowing="isNextSlideOnPictures" />
         <prevSlideButton @prev-slide="bigPictureSwiperPrevSlide" :isShowing="isPreviousSlideOnPictures" />
       </swiper>
+
+      <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
+        @click="zoomedInIsOpened = false" /> <!-- The background tint -->
+
+      <div class="fixed w-[98%] h-[500px] md:h-[98%] top-[50%] translate-y-[-50%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+        cursor-pointer" v-if="zoomedInIsOpened">
+        <button @click="zoomedInIsOpened = false"
+          class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
+          <font-awesome-icon :icon="['fas', 'xmark']" @mouseover="closeZoomInHoverAnimation"
+            @mouseleave="closeZoomInHoverReverseAnimation"
+            :class="{ 'fa-spin': closeButtonAnimation || reverseCloseButtonAnimation, 'fa-spin-reverse': reverseCloseButtonAnimation }" />
+        </button>
+
+        <img :src="'/images/' + scaledUpImg" @click="zoomInMore = !zoomInMore" class="h-[100%]"
+          :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore, 'cursor-zoom-in': !zoomInMore, 'cursor-zoom-out': zoomInMore }" />
+
+        <button
+          class="rounded-full px-12 py-2 text-md my-4 bg-white h-fit fixed bottom-[20px] border-[1px] border-slate-300">
+          <font-awesome-icon :icon="['fas', 'chevron-left']" @click="swipeZoomedInPictures('back')" />
+          <span class="mx-4">{{ currentSlide }}/{{ picturesForThisProduct.length }}</span>
+          <font-awesome-icon :icon="['fas', 'chevron-right']" @click="swipeZoomedInPictures('forward')" />
+        </button>
+      </div> <!-- Zoomed In Picture -->
     </div>
 
-    <div class="w-full ml-[10px]"> <!-- Section to the right -->
-      <h2 class="font-semibold">{{ product.title }}</h2>
+    <div class="h-[380px] lg:h-[500px] flex flex-col w-[50%] lg:w-[45%] pr-2"> <!-- Section to the right -->
+      <h2 class="my-4 font-semibold">{{ product.title }}</h2>
+
+      <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
+        :to="{ path: '/products/' + route.params.id, hash: '#comments' }">
+        <span>${{ product.price }}0</span>
+        <starsComponent :stars="props.productRatingInProcents" />
+        <span>({{ props.amountOfComments }})</span>
+      </NuxtLink> <!-- Stars -->
+
       <span class="">Options:
-        <span class=""></span>
+        <span class="">{{ nameOfCurrentOption }}</span>
       </span>
-      <div class="flex mt-2">
-        <img :src="'/images/' + option.imgURL" class="w-[120px]" v-for="option in optionsForThisProduct"
+      <div class="flex mt-2 w-full">
+        <img :src="'/images/' + option.imgURL" class="w-[100px] mr-2 rounded-lg border-[1px] border-transparent"
+          v-for="option in optionsForThisProduct" :class="{ '!border-sky-500': currentOptionId === option.id }"
           @click="changeOption(option.id)" />
       </div>
-
     </div>
+
   </div>
 </template>

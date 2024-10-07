@@ -87,8 +87,8 @@ const getMoreFilteredCommentsLink = ref(null);
 const lastCommentIdToShow = ref(2);
 const increaseCommentIdToShowBy = 3;
 
-if (process.client){
-    window.addEventListener('scroll', showMoreCommentsAtBottom);
+if (process.client) {
+  window.addEventListener('scroll', showMoreCommentsAtBottom);
 }
 
 function showMoreCommentsAtBottom() {
@@ -97,7 +97,6 @@ function showMoreCommentsAtBottom() {
   if (bottomOfWindow) {
     lastCommentIdToShow.value += increaseCommentIdToShowBy;
   }
-
 }
 
 function clearCommentsFilters() {
@@ -173,7 +172,8 @@ const ratingFilterHover = ref(false);
 
 <!-- Flagged: See how screen devides, revise it, and adjust it. Picture is WAYYYYYY too big; doesn't make sense at all -->
 <template>
-  <productSectionComponent />
+  <productSectionComponent :amountOfComments="productRating.amount_of_comments"
+    :productRatingInProcents="productRatingInProcents" />
 
   <div class="text-3xl mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
@@ -240,10 +240,9 @@ const ratingFilterHover = ref(false);
     </div>
 
     <div v-for="(comment, index) in filteredByStarsComments" :key="comment.id" class="my-2"
-      :class="{ 'bounce-in': playCommentsBounceAnimation, 'hidden': index > lastCommentIdToShow}">
+      :class="{ 'bounce-in': playCommentsBounceAnimation, 'hidden': index > lastCommentIdToShow }">
       <commentComponent :text="comment.text" :stars="comment.stars" :date="comment.created_at" :name="comment.name" />
-    </div>:class="{ hidden: activePicture.id !== picture.id }"
-
+    </div>
   </div>
 </template>
 

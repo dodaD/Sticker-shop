@@ -145,15 +145,17 @@ export const useProductsStore = defineStore("products", () => {
           "updated_at": null,
           "imgURL": "albedo.jpg",
           "product_id": 1,
-          "optinal": 1
+          "optinal": 1,
+          "name": "whatever"
         },
         {
           "id": 16,
           "created_at": null,
           "updated_at": null,
           "imgURL": "kazuha.jpg",
-          "product_id": 1,
-          "optinal": 1
+          "product_id": 1,
+          "optinal": 1,
+          "name": "something cool"
         }
       ],
       "pictures_for_product": [
