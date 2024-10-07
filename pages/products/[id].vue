@@ -142,32 +142,7 @@ watch(showStatisticOfRating, (status) => {
 });
 
 
-const hover = ref(false);
-const closeButtonAnimation = ref(false);
-
-function closeZoomInHoverAnimation() {
-  if (hover.value == true) {
-    return;
-  }
-  closeButtonAnimation.value = true;
-  hover.value = true;
-  setTimeout(() => {
-    closeButtonAnimation.value = false;
-  }, 300);
-}
-
-const reverseCloseButtonAnimation = ref(false);
-function closeZoomInHoverReverseAnimation() {
-  reverseCloseButtonAnimation.value = true;
-  hover.value = false;
-  setTimeout(() => {
-    reverseCloseButtonAnimation.value = false;
-  }, 300);
-}
-
-const currentTab = ref("description");
 const ratingFilterHover = ref(false);
-
 </script>
 
 <!-- Flagged: See how screen devides, revise it, and adjust it. Picture is WAYYYYYY too big; doesn't make sense at all -->

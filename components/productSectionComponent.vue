@@ -44,7 +44,6 @@ const nameOfCurrentOption = computed(() => {
   const indexOfCurrentOption = optionsForThisProduct.findIndex((option) => {
     return option.id == currentOptionId.value;
   });
-  console.log(optionsForThisProduct[indexOfCurrentOption]);
   return optionsForThisProduct[indexOfCurrentOption].name;
 });
 
@@ -164,6 +163,7 @@ const activeSmallPictureId = computed(() => {
   return picturesForThisProduct.value[bigPictureSwiper.value.activeIndex].id;
 });
 
+const currentTab = ref("description");
 </script>
 
 <template>
@@ -216,6 +216,7 @@ const activeSmallPictureId = computed(() => {
     </div>
 
     <div class="h-[380px] lg:h-[500px] flex flex-col w-[50%] lg:w-[45%] pr-2"> <!-- Section to the right -->
+
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
 
       <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
@@ -233,6 +234,36 @@ const activeSmallPictureId = computed(() => {
           v-for="option in optionsForThisProduct" :class="{ '!border-sky-500': currentOptionId === option.id }"
           @click="changeOption(option.id)" />
       </div>
+
+      <div class="mt-4"> <!-- Additional tabs -->
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': currentTab == 'description', 'border-white': currentTab != 'description' }"
+          @click="currentTab = 'description'">Description</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': currentTab == 'delivery', 'border-white': currentTab != 'delivery' }"
+          @click="currentTab = 'delivery'">Delivery</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full"
+          :class="{ 'border-black': currentTab == 'return', 'border-white': currentTab != 'return' }"
+          @click="currentTab = 'return'">Return</button>
+
+        <div class="mt-2 min-h-[50px] max-w-[100%]">
+          <p v-if="currentTab == 'description'">
+            {{ product.description }}
+          </p>
+          <p v-if="currentTab == 'delivery'">
+            Here is delivery options. You pay for it; Is not included in order.
+          </p>
+          <p v-if="currentTab == 'return'">
+            Returns accepted if stickers in perfect condition and none is missing. You must pay for shipping them back
+            and won't get any refund on shipping cost.
+          </p>
+        </div>
+      </div>
+    
+
+
     </div>
 
   </div>
