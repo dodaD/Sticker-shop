@@ -170,7 +170,7 @@ const ratingFilterHover = ref(false);
   </swiper>
 
 
-  <div class="mt-20 mb-5 flex flex-col w-full">
+  <div class="mt-20 mb-5 flex flex-col w-full min-h-[300px]">
     <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap">
       <span class="font-semibold" id="comments">Comments:</span>
@@ -185,7 +185,7 @@ const ratingFilterHover = ref(false);
         <!-- ^ -->
         <!-- | -->
         <!--  - Is here that it could cover all screen, that when you click anywhere the pop-out menu would close -->
-        <div class=" absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[270px] w-[400px] z-50"
+        <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[270px] w-[400px] z-50"
           v-if="showStatisticOfRating">
 
           <span class="font-semibold">
