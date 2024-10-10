@@ -68,6 +68,8 @@ function changeActiveSlide(pictureId, direction) {
 }
 
 async function changeOption(optionId) {
+  bigPictureSwiper.value.slideTo(0);
+  smallPictureSwiper.value.slideTo(0);
   picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
   picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
   currentOptionId.value = optionId;
