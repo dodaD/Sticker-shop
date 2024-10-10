@@ -68,6 +68,8 @@ function changeActiveSlide(pictureId, direction) {
 }
 
 async function changeOption(optionId) {
+  bigPictureSwiper.value.slideTo(0);
+  smallPictureSwiper.value.slideTo(0);
   picturesForThisProduct.value = await productStore.getAnotherOptionForProduct(optionId);
   picturesForThisProduct.value = picturesForThisProduct.value.pictures_for_this;
   currentOptionId.value = optionId;
@@ -97,11 +99,38 @@ function bigPictureSwiperPrevSlide() {
   smallPictureSwiper.value.slidePrev();
 };
 
+const zoomedInIsOpened = ref(false);
+const scaledUpImg = ref('');
+const scaledUpId = ref('');
+const zoomInMore = ref(false);
 
 function openZoomIn(pictureImgURL, pictureId) {
   scaledUpImg.value = pictureImgURL;
   zoomedInIsOpened.value = true;
   scaledUpId.value = pictureId;
+}
+
+const hover = ref(false);
+const closeButtonAnimation = ref(false);
+
+function closeZoomInHoverAnimation() {
+  if (hover.value == true) {
+    return;
+  }
+  closeButtonAnimation.value = true;
+  hover.value = true;
+  setTimeout(() => {
+    closeButtonAnimation.value = false;
+  }, 300);
+}
+
+const reverseCloseButtonAnimation = ref(false);
+function closeZoomInHoverReverseAnimation() {
+  reverseCloseButtonAnimation.value = true;
+  hover.value = false;
+  setTimeout(() => {
+    reverseCloseButtonAnimation.value = false;
+  }, 300);
 }
 
 const currentSlide = computed(() => {
@@ -136,14 +165,15 @@ const activeSmallPictureId = computed(() => {
   return picturesForThisProduct.value[bigPictureSwiper.value.activeIndex].id;
 });
 
+const currentTab = ref("description");
 </script>
 
 <template>
   <div class="flex">
-    <div class="h-[500px] flex w-[10%]">
+    <div class="h-[500px] flex w-[10%] !hidden lg:!block">
       <!-- Small pictures -->
-      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper" class="!hidden lg:!block"
-        watch-slides-progress :direction="'vertical'">
+      <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
+        watch-slides-progress :direction="'vertical'" class="max-h-full">
         <swiper-slide v-for="picture in picturesForThisProduct" @click="changeActiveSlide(picture.id)"
           class="!h-fit rounded-lg cursor-pointer rounded-lg border-[1px] border-transparent"
           :class="{ '!border-blue-900': activeSmallPictureId == picture.id }">
@@ -152,19 +182,43 @@ const activeSmallPictureId = computed(() => {
       </swiper>
     </div>
 
-    <div class="h-[500px] flex w-[45%] pl-2">
+    <div class="h-[380px] lg:h-[500px] flex w-[50%] lg:w-[45%]">
       <!-- Big picture -->
-      <swiper class="relative w-full" :slidesPerView="1" @swiper="setBigPictureSwiper">
-        <swiper-slide v-for="picture in picturesForThisProduct">
+      <swiper class="relative w-full justify-center" :slidesPerView="1" @swiper="setBigPictureSwiper">
+        <swiper-slide v-for="picture in picturesForThisProduct" class="!flex justify-center">
           <img :src="'/images/' + picture.imgURL" class="h-full rounded-lg cursor-zoom-in"
             @click="openZoomIn(picture.imgURL, picture.id)" />
         </swiper-slide>
         <nextSlideButton @next-slide="bigPictureSwiperNextSlide" :isShowing="isNextSlideOnPictures" />
         <prevSlideButton @prev-slide="bigPictureSwiperPrevSlide" :isShowing="isPreviousSlideOnPictures" />
       </swiper>
+
+      <div class="fixed top-0 right-0 w-full h-full bg-black/50 z-40" v-if="zoomedInIsOpened"
+        @click="zoomedInIsOpened = false" /> <!-- The background tint -->
+
+      <div class="fixed w-[98%] h-[500px] md:h-[98%] top-[50%] translate-y-[-50%] right-[1%] z-50 flex justify-center bg-white rounded-lg overflow-scroll
+        cursor-pointer" v-if="zoomedInIsOpened">
+        <button @click="zoomedInIsOpened = false"
+          class="absolute top-[2%] right-[2%] text-2xl border-[1px] border-slate-300 rounded-full h-[50px] w-[50px]">
+          <font-awesome-icon :icon="['fas', 'xmark']" @mouseover="closeZoomInHoverAnimation"
+            @mouseleave="closeZoomInHoverReverseAnimation"
+            :class="{ 'fa-spin': closeButtonAnimation || reverseCloseButtonAnimation, 'fa-spin-reverse': reverseCloseButtonAnimation }" />
+        </button>
+
+        <img :src="'/images/' + scaledUpImg" @click="zoomInMore = !zoomInMore" class="h-[100%]"
+          :class="{ 'w-[90%]': zoomInMore, 'h-fit': zoomInMore, 'cursor-zoom-in': !zoomInMore, 'cursor-zoom-out': zoomInMore }" />
+
+        <button
+          class="rounded-full px-12 py-2 text-md my-4 bg-white h-fit fixed bottom-[20px] border-[1px] border-slate-300">
+          <font-awesome-icon :icon="['fas', 'chevron-left']" @click="swipeZoomedInPictures('back')" />
+          <span class="mx-4">{{ currentSlide }}/{{ picturesForThisProduct.length }}</span>
+          <font-awesome-icon :icon="['fas', 'chevron-right']" @click="swipeZoomedInPictures('forward')" />
+        </button>
+      </div> <!-- Zoomed In Picture -->
     </div>
 
-    <div class="h-[500px] flex flex-col w-[45%]"> <!-- Section to the right -->
+    <div class="h-[380px] lg:h-[500px] flex flex-col w-[50%] lg:w-[45%] pr-2"> <!-- Section to the right -->
+
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
 
       <NuxtLink class="pb-8 border-b-2 border-indigo-500 w-[100%]  mb-5 flex"
@@ -182,6 +236,36 @@ const activeSmallPictureId = computed(() => {
           v-for="option in optionsForThisProduct" :class="{ '!border-sky-500': currentOptionId === option.id }"
           @click="changeOption(option.id)" />
       </div>
+
+      <div class="mt-4"> <!-- Additional tabs -->
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': currentTab == 'description', 'border-white': currentTab != 'description' }"
+          @click="currentTab = 'description'">Description</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full mr-4"
+          :class="{ 'border-black': currentTab == 'delivery', 'border-white': currentTab != 'delivery' }"
+          @click="currentTab = 'delivery'">Delivery</button>
+
+        <button class="py-1 px-2 border-[1px] rounded-full"
+          :class="{ 'border-black': currentTab == 'return', 'border-white': currentTab != 'return' }"
+          @click="currentTab = 'return'">Return</button>
+
+        <div class="mt-2 min-h-[50px] max-w-[100%]">
+          <p v-if="currentTab == 'description'">
+            {{ product.description }}
+          </p>
+          <p v-if="currentTab == 'delivery'">
+            Here is delivery options. You pay for it; Is not included in order.
+          </p>
+          <p v-if="currentTab == 'return'">
+            Returns accepted if stickers in perfect condition and none is missing. You must pay for shipping them back
+            and won't get any refund on shipping cost.
+          </p>
+        </div>
+      </div>
+    
+
+
     </div>
 
   </div>
