@@ -116,7 +116,7 @@ function closeFilters() {
       <TransitionGroup name="type">
         <div class="py-[2px] flex items-center" v-for="filter in types" v-if="showTypes" :key="filter">
           <input type="checkbox" :value="filter" v-model="appliedFilters.filters.types" :id="filter"
-            class="hover:cursor-pointer custom-check" />
+            class="hover:cursor-pointer custom-check" /> <!--For each category I've binded it to radio input and this is how I add them to the filters -->
           <label class="pl-[5px]">{{ filter }} </label>
         </div>
       </TransitionGroup>

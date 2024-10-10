@@ -7,7 +7,7 @@
 
   <div class="flex min-h-[40px] mb-7 sm:max-w-[580px] md:max-w-[unset] sm:p-0 px-[30px]">
     <div class="flex flex-wrap lg:hidden">
-      <div v-for="filter in appliedFilters.combinedFilters" v-if="appliedFilters.combinedFilters.length != 0"
+      <div v-for="filter in appliedFilters.notCategorizedFilters" v-if="appliedFilters.notCategorizedFilters.length != 0"
         class="w-fit rounded-3xl shrink-0 bg-zinc-300 px-6 py-2 mr-1 last:mr-0 mb-2">
         {{ filter }}
         <button @click="removeFilter(filter)">
@@ -16,7 +16,7 @@
       </div>
 
       <button class="h-fit mr-4 ml-1 my-auto w-fit underline-animation clear-all-button"
-        v-if="appliedFilters.filters.length != 0" @click="clearAll">
+        v-if="appliedFilters.notCategorizedFilters.length != 0" @click="clearAll">
         Clear all
       </button>
     </div>
@@ -99,7 +99,6 @@ function sortProducts(sort, reverse, sortObject) {
 const hover = ref(false);
 const store = useProductsStore(); //TODO rename
 const appliedFilters = useAppliedFiltersStore();
-console.log(appliedFilters.combinedFilters);
 
 store.response = await store.getProducts(); //TODO rozibratysia z tym chomu pracuje await
 
