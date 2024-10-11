@@ -169,8 +169,8 @@ const currentTab = ref("description");
 </script>
 
 <template>
-  <div class="flex">
-    <div class="h-[500px] flex w-[10%] !hidden lg:!block">
+  <div class="flex md:flex-row flex-col items-center">
+    <div class="h-[200px] md:h-[500px] flex w-[10%] !hidden lg:!block">
       <!-- Small pictures -->
       <swiper :slidesPerView="'auto'" :spaceBetween="20" @swiper="setSmallPicturesSwiper"
         watch-slides-progress :direction="'vertical'" class="max-h-full">
@@ -182,7 +182,7 @@ const currentTab = ref("description");
       </swiper>
     </div>
 
-    <div class="h-[380px] lg:h-[500px] flex w-[50%] lg:w-[45%]">
+    <div class="h-[380px] lg:h-[500px] flex md:w-[50%] lg:w-[45%]">
       <!-- Big picture -->
       <swiper class="relative w-full justify-center" :slidesPerView="1" @swiper="setBigPictureSwiper">
         <swiper-slide v-for="picture in picturesForThisProduct" class="!flex justify-center">
@@ -217,7 +217,7 @@ const currentTab = ref("description");
       </div> <!-- Zoomed In Picture -->
     </div>
 
-    <div class="h-[380px] lg:h-[500px] flex flex-col w-[50%] lg:w-[45%] pr-2"> <!-- Section to the right -->
+    <div class="h-[380px] lg:h-[500px] flex flex-col w-full md:w-[50%] lg:w-[45%] pr-2"> <!-- Section to the right -->
 
       <h2 class="my-4 font-semibold">{{ product.title }}</h2>
 
