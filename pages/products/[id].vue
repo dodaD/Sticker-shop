@@ -53,17 +53,19 @@ const isPreviousSlideOnYouMightLike = computed(() => {
 
 
 const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
+const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(route.params.id);
+const ratingStatistics = fetchRatingStatistics[0];
 const comments = ref(fetchComments.comments);
 
-const filteredByStarsComments = ref(comments.value.data);
+const filteredByStarsComments = ref(comments.value);
 const currentStarFilter = ref(null);
 
 function getsCommentsWithSpecificStars(starFilter) {
-  if (fetchRatingStatistics[starFilter] == 0) {
+  if (ratingStatistics[starFilter] == 0) {
     return;
   }
   currentStarFilter.value = starFilter;
-  filteredByStarsComments.value = comments.value.data.filter((comment) => {
+  filteredByStarsComments.value = comments.value.filter((comment) => {
     return (comment.stars == starFilter);
   });
 }
@@ -100,7 +102,7 @@ function showMoreCommentsAtBottom() {
 }
 
 function clearCommentsFilters() {
-  filteredByStarsComments.value = comments.value.data;
+  filteredByStarsComments.value = comments.value;
   currentStarFilter.value = null;
   getMoreFilteredCommentsLink.value = null;
   playCommentsBounceAnimation.value = true;
@@ -114,15 +116,14 @@ const clearCommentsFilterHover = ref(false);
 const productRating = await commentsStore.getStarsForProduct(route.params.id);
 const productRatingInProcents = parseFloat(productRating.stars) / 5 * 100;
 
-const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(route.params.id);
 function calculateRatingStatistics() {
   const percentageOfStars = [];
   for (let i = 1; i <= 5; i++) {
-    percentageOfStars[i] = (fetchRatingStatistics[i] / productRating.amount_of_comments * 80).toPrecision(2);
+    percentageOfStars[i] = (ratingStatistics[i] / productRating.amount_of_comments * 80).toPrecision(2);
   }
   return percentageOfStars;
 };
-const ratingStatistics = calculateRatingStatistics();
+const percentageOfStars = calculateRatingStatistics();
 
 const scaledUpImg = ref('');
 const scaledUpId = ref(null);
@@ -195,19 +196,19 @@ const ratingFilterHover = ref(false);
 
           <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-2 rounded-sm"
             @click="getsCommentsWithSpecificStars(i)"
-            :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': fetchRatingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0 }">
+            :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': ratingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0 }">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
             <div v-if="showStatisticOfRating"
               class="h-[20px] top-[50%] translate-y-[-50%] star-procent absolute left-[33%] rounded">
               <div class="bg-amber-300 h-full rounded"
                 :class="{ 'filling-color-animation': showFillingAnimation, 'w-[0]': !showFillingAnimation }" />
             </div>
-            <span class="text-black"> ({{ fetchRatingStatistics[i] }}) </span>
+            <span class="text-black"> ({{ ratingStatistics[i] }}) </span>
             <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
           </div>
         </div>
       </button>
-      <button v-if="filteredByStarsComments != comments.data" @click="clearCommentsFilters"
+      <button v-if="filteredByStarsComments != comments" @click="clearCommentsFilters"
         @mouseover="clearCommentsFilterHover = true" @mouseleave="clearCommentsFilterHover = false"
         class="mr-auto underline-animation" :class="{ 'underline-animation-line-move': clearCommentsFilterHover }">
         Clear filters (Showing only: {{ currentStarFilter }} star comments)
@@ -228,31 +229,31 @@ const ratingFilterHover = ref(false);
 
 .star-statistics:nth-child(2) {
   .star-procent {
-    width: v-bind(ratingStatistics[1] + '%');
+    width: v-bind(percentageOfStars[1] + '%');
   }
 }
 
 .star-statistics:nth-child(3) {
   .star-procent {
-    width: v-bind(ratingStatistics[2] + '%');
+    width: v-bind(percentageOfStars[2] + '%');
   }
 }
 
 .star-statistics:nth-child(4) {
   .star-procent {
-    width: v-bind(ratingStatistics[3] + '%');
+    width: v-bind(percentageOfStars[3] + '%');
   }
 }
 
 .star-statistics:nth-child(5) {
   .star-procent {
-    width: v-bind(ratingStatistics[4] + '%');
+    width: v-bind(percentageOfStars[4] + '%');
   }
 }
 
 .star-statistics:nth-child(6) {
   .star-procent {
-    width: v-bind(ratingStatistics[5] + '%');
+    width: v-bind(percentageOfStars[5] + '%');
   }
 }
 
