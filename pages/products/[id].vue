@@ -149,12 +149,12 @@ const ratingFilterHover = ref(false);
 <!-- Flagged: See how screen devides, revise it, and adjust it. Picture is WAYYYYYY too big; doesn't make sense at all -->
 <template>
   <productSectionComponent :amountOfComments="productRating.amount_of_comments"
-    :productRatingInProcents="productRatingInProcents" />
+    :productRatingInProcents="productRatingInProcents" class="mb-[40px]" />
 
-  <div class="text-3xl mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
+  <div class="text-3xl md:mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
   <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="setYouMightLikeSwiper"
-    class="relative w-[300px] md:w-full">
+    class="relative w-full">
     <swiper-slide v-for="product in youMightLikeProducts.products"
       class="second-swiper-slide !flex justify-center items-center">
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
@@ -171,12 +171,11 @@ const ratingFilterHover = ref(false);
   </swiper>
 
 
-  <div class="mt-20 mb-5 flex flex-col w-full min-h-[300px]">
+  <div class="md:mt-20 mt-5 mb-5 flex flex-col w-full min-h-[340px] relative ">
     <!-- Comments -->
-    <div class="mb-8 flex content-start flex-col flex-wrap">
+    <div class="mb-8 flex content-start flex-col flex-wrap w-full ">
       <span class="font-semibold" id="comments">Comments:</span>
-      <button class="flex items-center cursor-pointer relative mr-auto"
-        @click="showStatisticOfRating = !showStatisticOfRating">
+      <button class="flex items-center cursor-pointer mr-auto" @click="showStatisticOfRating = !showStatisticOfRating">
         <starsComponent :stars="productRatingInProcents" />
         <span class="mx-2">{{ productRating.amount_of_comments }} Reviews</span>
         <arrowToggleComponent :showContext="showStatisticOfRating" />
@@ -186,7 +185,8 @@ const ratingFilterHover = ref(false);
         <!-- ^ -->
         <!-- | -->
         <!--  - Is here that it could cover all screen, that when you click anywhere the pop-out menu would close -->
-        <div class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[30px] h-[270px] w-[400px] z-50"
+        <div
+          class="absolute bg-white border-[1px] rounded-lg p-2 shadow-lg top-[60px] h-[300px] right-0 left-0 sm:right-[unset] sm:left-[unset] sm:w-[400px] z-50"
           v-if="showStatisticOfRating">
 
           <span class="font-semibold">
@@ -194,7 +194,7 @@ const ratingFilterHover = ref(false);
             {{ Number(productRating.stars).toPrecision(3) }}
           </span>
 
-          <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-2 rounded-sm"
+          <div v-for="i in 5" class=" my-3 relative flex py-[1%] px-1 rounded-sm"
             @click="getsCommentsWithSpecificStars(i)"
             :class="{ 'bg-red-200/50': currentStarFilter == i, 'cursor-default': ratingStatistics[i] == 0, 'star-statistics': fetchRatingStatistics[i] != 0 }">
             <div class="w-[65%] bg-slate-200 top-[50%] translate-y-[-50%] h-[20px] absolute right-[2%] rounded" />
@@ -203,8 +203,15 @@ const ratingFilterHover = ref(false);
               <div class="bg-amber-300 h-full rounded"
                 :class="{ 'filling-color-animation': showFillingAnimation, 'w-[0]': !showFillingAnimation }" />
             </div>
-            <span class="text-black"> ({{ ratingStatistics[i] }}) </span>
-            <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto" />
+            <span
+              class="block active-star overflow-hidden text-amber-200 whitespace-nowrap relative z-40 ml-[2px] sm:hidden block">
+              <font-awesome-icon :icon="['fas', 'star']" aria-hidden="true" />
+            </span>
+            <span class="sm:hidden block">{{ i }}</span> <!-- Mob devices have stars in numbers -->
+            <span class="text-black w-[25px]"> ({{ ratingStatistics[i] }}) </span>
+
+            <starsComponent :stars="i / 5 * 100" class="!ml-[0px] !mr-auto hidden sm:block" />
+            <!-- Larger devices have stars in stars itself -->
           </div>
         </div>
       </button>

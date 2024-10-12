@@ -1,10 +1,19 @@
 <template>
-  <div
-    class="flex flex-col hover:bg-stone-200/65 rounded-md z-0 justify-center items-center p-[10px] translate-y-[-10px] w-fit"
-    @click="openProductProfile">
-    <img v-if="img" :src="'/images/' + img" class="w-[260px] h-[370px]" />
-    <span class="mx-auto"> {{ title }} </span>
-    <span class="mx-auto mb-2"> {{ price }} </span>
+  <div class="flex 
+    flex-col
+    hover:bg-stone-200/65
+    rounded-md
+    z-0 
+    justify-center
+    items-center
+    p-[10px]
+    translate-y-[-10px]
+    w-full
+    md:w-[270px]
+    md:h-[430px]" @click="openProductProfile">
+    <img v-if="img" :src="'/images/' + img" class="w-full md:max-w-[260px] md:max-h-[370px]" />
+    <span class="mr-auto"> {{ title }} </span>
+    <span class="mr-auto mb-2"> ${{ price }} </span>
   </div>
 </template>
 
