@@ -54,7 +54,7 @@ const isPreviousSlideOnYouMightLike = computed(() => {
 
 const fetchComments = await commentsStore.getCommentsForProduct(route.params.id);
 const fetchRatingStatistics = await commentsStore.getStarStatisticsForProduct(route.params.id);
-const ratingStatistics = fetchRatingStatistics[0];
+const ratingStatistics = fetchRatingStatistics;
 const comments = ref(fetchComments.comments);
 
 const filteredByStarsComments = ref(comments.value);

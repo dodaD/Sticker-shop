@@ -3,9 +3,8 @@ import { defineStore } from "pinia";
 export const useCommentsStore = defineStore("comments", () => {
   async function getCommentsForProduct(product_id) {
     return {
-      "comments": {
-        "current_page": 1,
-        "data": [
+      "comments":
+      [
           {
             "id": 1,
             "name": "User 1",
@@ -56,17 +55,6 @@ export const useCommentsStore = defineStore("comments", () => {
             "created_at": "2024-07-26 00:30:05"
           }
         ],
-        "first_page_url": "",
-        "from": 1,
-        "last_page": 1,
-        "last_page_url": "",
-        "next_page_url": null,
-        "path": "http://example.com/api/comments",
-        "per_page": 2,
-        "prev_page_url": null,
-        "to": 2,
-        "total": 2
-      }
     };
   }
 
