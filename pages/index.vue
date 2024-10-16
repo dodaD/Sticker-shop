@@ -51,7 +51,7 @@
   <div class="flex relative">
     <filterComponent :isFixed="!isVisible" />
 
-    <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 w-[100%] lg:w-fit ml-auto">
+    <div class="grid xl:grid-cols-3 sm:grid-cols-2 gap-4 mx-auto lg:w-fit lg:ml-auto lg:mr-[unset]">
       <TransitionGroup name="products">
         <div v-for="product in filtredProducts" :key="product.id">
           <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
