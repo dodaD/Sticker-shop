@@ -154,24 +154,24 @@ const ratingFilterHover = ref(false);
   <div class="text-3xl md:mt-[100px] mb-4">You might also like:</div> <!-- You might like section -->
 
   <swiper :slidesPerView="'auto'" :spaceBetween="20" :modules="modules" @swiper="setYouMightLikeSwiper"
-    class="relative w-full">
+    class="relative w-full h-[450px]">
     <swiper-slide v-for="product in youMightLikeProducts.products"
       class="second-swiper-slide !flex justify-center items-center">
       <productComponent :title="product.title" :price="product.price" :img="product.imgURL" :id="product.id" />
     </swiper-slide>
 
     <button @click="youMightLikeSwiperPrevSlide" v-if="isPreviousSlideOnYouMightLike"
-      class="absolute top-[50%] translate-y-[-50%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+      class="absolute top-[50%] translate-y-[-100%] left-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-left']" />
     </button>
     <button @click="youMightLikeSwiperNextSlide" v-if="isNextSlideOnYouMightLike"
-      class="absolute top-[50%] translate-y-[-50%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
+      class="absolute top-[50%] translate-y-[-100%] right-0 bg-white rounded-full h-[60px] w-[60px] cursor z-50 border-[1px] border-slate-200 flex items-center justify-center">
       <font-awesome-icon :icon="['fas', 'chevron-right']" />
     </button>
   </swiper>
 
 
-  <div class="md:mt-20 mt-5 mb-5 flex flex-col w-full min-h-[340px] relative ">
+  <div class="md:mt-20 mt-10 mb-5 flex flex-col w-full min-h-[340px] relative ">
     <!-- Comments -->
     <div class="mb-8 flex content-start flex-col flex-wrap w-full ">
       <span class="font-semibold" id="comments">Comments:</span>

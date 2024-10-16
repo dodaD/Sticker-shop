@@ -9,9 +9,9 @@
     p-[10px]
     translate-y-[-10px]
     w-full
-    md:w-[270px]
-    md:h-[430px]" @click="openProductProfile">
-    <img v-if="img" :src="'/images/' + img" class="w-full md:max-w-[260px] md:max-h-[370px]" />
+    w-[270px]
+    h-[430px]" @click="openProductProfile">
+    <img v-if="img" :src="'/images/' + img" class="w-[260px] h-[370px]" />
     <span class="mr-auto"> {{ title }} </span>
     <span class="mr-auto mb-2"> ${{ price }} </span>
   </div>
